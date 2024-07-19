@@ -1,5 +1,8 @@
 - [ ] writeout project readme
 - [ ] writeout man page
 - [ ] make readme template
-- [ ] writeout exercise list based upon the intranet concept page for simple shell
-	- [ ] put these programs within the test/ dir
+- [x] writeout exercise list based upon the intranet concept page for simple shell
+	- [x] put these programs within the test/ dir
+- [x] writeout examples programs from the intranet concept page 
+- [x] writeout given task goals 
+- [ ] writeout ash test suite
