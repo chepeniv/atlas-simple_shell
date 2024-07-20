@@ -11,8 +11,8 @@
 *.gch
 
 # exercise and example programs
-*.exr.c
-*.exm.c
+# *.exr.c
+# *.exm.c
 *.test.c
 
 resources/
