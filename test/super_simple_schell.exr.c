@@ -12,6 +12,7 @@ int main()
 	size_t n;
 	ssize_t status;
 	char *line = NULL;
+	char *delims = " \t\n";
 	char *linedup = NULL;
 	char *word = NULL;
 	char **input = NULL;
@@ -25,7 +26,7 @@ int main()
 		status = getline(&line, &n, stdin);
 
 		linedup = strdup(line);
-		word = strtok(linedup, " \t\n");
+		word = strtok(linedup, delims);
 
 		/*exit shell*/
 		if (!strcmp(word, "exit"))
@@ -39,18 +40,18 @@ int main()
 		len = 1;
 		while (word != NULL)
 		{
-			word = strtok(NULL, " \t\n");
+			word = strtok(NULL, delims);
 			len++;
 		}
 
 		/*allocate mem and construct array */
 		input = malloc(sizeof(void *) * len);
-		*input = strtok(line, " \t\n");
+		*input = strtok(line, delims);
 		next = input;
 		while (*next != NULL)
 		{
 			next++;
-			*next = strtok(NULL, " \t\n");
+			*next = strtok(NULL, delims);
 		}
 
 		/*create subproc and exec command given*/
