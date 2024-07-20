@@ -6,3 +6,11 @@
 - [x] writeout examples programs from the intranet concept page 
 - [x] writeout given task goals 
 - [ ] writeout ash test suite
+- [ ] functions to recreate
+	- [ ] `int _strcmp(char *a, char *b)`
+	- [ ] `char *_strdup(char *a)`
+- [ ] main.h
+- [ ] main.c
+	- [ ] func: count tokens
+	- [ ] func: construct token array
+	- [ ] func: iterate through token array
