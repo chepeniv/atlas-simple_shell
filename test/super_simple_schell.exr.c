@@ -24,24 +24,26 @@ int main()
 		printf("$$$hell :: ");
 		status = getline(&line, &n, stdin);
 
-		/*count delimeted substrings*/
-		len = 1;
 		linedup = strdup(line);
 		word = strtok(linedup, " \t\n");
+
+		/*exit shell*/
 		if (!strcmp(word, "exit"))
 		{
 			free(linedup);
 			printf("exiting...\n");
 			break;
 		}
+
+		/*count delimeted substrings*/
+		len = 1;
 		while (word != NULL)
 		{
 			word = strtok(NULL, " \t\n");
 			len++;
 		}
 
-		/*allocate mem for array*/
-		/*construct array */
+		/*allocate mem and construct array */
 		input = malloc(sizeof(void *) * len);
 		*input = strtok(line, " \t\n");
 		next = input;
@@ -51,6 +53,7 @@ int main()
 			*next = strtok(NULL, " \t\n");
 		}
 
+		/*create subproc and exec command given*/
 		child_proc = fork();
 		if (child_proc < 0)
 		{
@@ -75,4 +78,3 @@ int main()
 	free(line);
 	return (0);
 }
-
