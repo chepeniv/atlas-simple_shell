@@ -27,6 +27,7 @@ char *_getenv(const char *name)
 	while (environ[i])
 	{
 		item = environ[i];
+		item = strdup(item);
 		item = strtok(item, "=");
 
 		if (!strcmp(name, item))
