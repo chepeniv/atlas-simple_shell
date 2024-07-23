@@ -175,38 +175,32 @@ int run_cmd(char *cmdpath, char **token_array)
  */
 int main(void)
 {
-	char *inputline = NULL;
+	char *inputline = NULL, **token_array = NULL;
 	size_t n = 0;
 	ssize_t read;
-	char **token_array = NULL;
 	struct stat file_stat;
-	int status;
-	int toklen;
+	int status, toklen;
 
-	printf("--------\n");
-	printf("Welcome to Atlas Simple Shell!\n");
-	printf("Go away\n");
-	printf("--------\n");
+	if (isatty(STDIN_FILENO))
+	{
+		printf("--------\n");
+		printf("Welcome to Atlas Simple Shell!\n");
+		printf("Go away\n");
+		printf("--------\n");
+	}
 
 	while ((read = getline(&inputline, &n, stdin)) != -1)
 	{
 		if (read > 0 && inputline[read - 1] == '\n')
-		{
 			inputline[read - 1] = '\0';
-		}
 
 		toklen = count_tokens(inputline, " \t\n");
 		token_array = create_tok_array(inputline, " \t\n", toklen);
 
-		/* Handle empty input or "exit" command */
 		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
-		{
 			break;
-		}
 		else if (!strcmp(token_array[0], "env"))
-		{
 			print_env();
-		}
 		else
 		{
 			char *cmdpath = get_path(token_array[0]);
@@ -214,14 +208,10 @@ int main(void)
 			{
 				status = run_cmd(cmdpath, token_array);
 				if (status == -1)
-				{
 					fprintf(stderr, "%s: command not found\n", token_array[0]);
-				}
 			}
 			else
-			{
 				perror(token_array[0]);
-			}
 
 			free(cmdpath);
 		}
