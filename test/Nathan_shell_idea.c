@@ -16,7 +16,7 @@ extern char **environ;
  * @inputline: The input string.
  * @delims: The delimiter characters.
  *
- * Return: The number of tokens.
+ * Return: The number of tokens but not as fun as an arcade.
  */
 int count_tokens(char *inputline, char *delims)
 {
@@ -46,7 +46,7 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 {
 	char **token, **array;
 
-	array = malloc(sizeof(char *) * (toklen + 1)); /* +1 for NULL */
+	array = malloc(sizeof(char *) * (toklen + 1));
 	if (array == NULL)
 	{
 		perror("malloc");
@@ -102,7 +102,7 @@ void print_env(void)
 
 /**
  * run_cmd - Placeholder for future command execution logic.
- * @usr_input: An array of strings representing the command and arguments.
+ * @usr_input: An array of strings representing... The user input. Surprise surprise
  *
  * Return: The exit status of the command.
  */
@@ -149,6 +149,7 @@ int main(void)
 
 	printf("--------\n");
 	printf("Welcome to Atlas Simple Shell!\n");
+	printf("Go away\n");
 	printf("--------\n");
 
 	while (1)
@@ -172,7 +173,7 @@ int main(void)
 		toklen = count_tokens(inputline, " \t\n");
 		token_array = create_tok_array(inputline, " \t\n", toklen);
 
-		/* Handle empty input or "exit" command */
+		/* Handle "exit" command */
 		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
 		{
 			break;
