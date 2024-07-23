@@ -15,7 +15,7 @@ int run_cmd(char *cmdpath, char **usr_input);
 /*simplify program if possible */
 int main()
 {
-	unsigned int i, toklen;
+	unsigned int toklen;
 	size_t n;
 	ssize_t status;
 	char *inputline = NULL;
@@ -23,7 +23,6 @@ int main()
 	char *cmdname = NULL;
 	char **token_array = NULL;
 	char *cmdpath;
-	int cmdlen;
 
 	do
 	{
@@ -123,4 +122,5 @@ int run_cmd(char *cmdpath, char **token_array)
 		else
 			wait(&child_proc);
 	}
+	return (127);
 }
