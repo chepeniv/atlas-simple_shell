@@ -120,25 +120,53 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	pid_t child_proc;
+	char **args = NULL;
 
 	if (stat(cmdpath, &file_stat) == 0)
 	{
 		child_proc = fork();
 		if (child_proc < 0)
 		{
-			perror("ERROR:");
-			return (1);
+			perror("fork");
+			return 1;
 		}
 		else if (child_proc == 0)
 		{
-			if (execve(cmdpath, token_array, NULL) == -1)
-				perror("ERROR:");
-			return (-1);
+
+			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
+			if (!args)
+			{
+				perror("malloc");
+				exit(EXIT_FAILURE);
+			}
+
+			args[0] = cmdpath; /* First argument is the command itself */
+			int i = 1;
+			while (token_array[i - 1] != NULL && i < MAX_ARGS)
+			{
+				args[i] = token_array[i - 1];
+				i++;
+			}
+			args[i] = NULL;
+
+			if (execve(cmdpath, args, NULL) == -1)
+			{
+				perror(token_array[0]);
+				exit(EXIT_FAILURE);
+			}
 		}
 		else
-			wait(&child_proc);
+		{
+			wait(NULL);
+		}
 	}
-	return (127);
+	else
+	{
+		fprintf(stderr, "%s: command not found\n", token_array[0]);
+		return 1;
+	}
+	free(args); 
+	return 0;
 }
 
 /**
