@@ -6,67 +6,39 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
+int count_tokens(char *input, char *delims);
+char **create_tok_array(char *input, char *delims, int toklen);
+char *get_path(char *cmdname);
+int run_cmd(char **usr_input);
+
 /*simplify program if possible */
 int main()
 {
-	unsigned int i, len;
+	unsigned int i, toklen;
 	size_t n;
 	ssize_t status;
-	char *line = NULL;
+	char *inputline = NULL;
 	char *delims = " \t\n";
-	char *linedup = NULL;
-	char *word = NULL;
-	char **input = NULL;
-	char **next = NULL;
+	char *cmdname = NULL;
+	char **token_array = NULL;
 	int *forkstatus;
 	pid_t this_proc, child_proc;
 	struct stat file_stat;
 	char *cmdpath;
 	int cmdlen;
 
-	printf("--------\n");
-	printf("you have entered our\n\nAtlas\n Simple\n  Shell.\n\n");
-	printf("welcome\n");
-	printf("--------\n");
 	do
 	{
-		printf("$$$hell :: ");
-		status = getline(&line, &n, stdin);
+		printf("$$ ");
+		status = getline(&inputline, &n, stdin);
 
-		linedup = strdup(line);
-		word = strtok(linedup, delims);
+		toklen = count_tokens(inputline, delims);
+		token_array = create_tok_array(inputline, delims, toklen);
+		cmdname = *token_array;
+		cmdpath = get_path(cmdname);
 
-		/*exit shell*/
-		if (!strcmp(word, "exit"))
-		{
-			free(linedup);
-			printf("exiting...\n");
+		if (!strcmp(cmdname, "exit"))
 			break;
-		}
-
-		/*count delimeted substrings*/
-		len = 1;
-		while (word != NULL)
-		{
-			word = strtok(NULL, delims);
-			len++;
-		}
-
-		/*allocate mem and construct array */
-		input = malloc(sizeof(void *) * len);
-		*input = strtok(line, delims);
-		next = input;
-		while (*next != NULL)
-		{
-			next++;
-			*next = strtok(NULL, delims);
-		}
-
-		/*construct cmdpath*/
-		cmdlen = strlen(*input);
-		cmdpath = malloc(sizeof(char) * (cmdlen + 6));
-		cmdpath = strcpy(cmdpath, "/bin/");
-		cmdpath = strcat(cmdpath, *input);
 
 		/*create subproc and exec command given*/
 		if (stat(cmdpath, &file_stat) == 0)
@@ -79,7 +51,7 @@ int main()
 			}
 			else if (child_proc == 0)
 			{
-				if (execve(cmdpath, input, NULL) == -1)
+				if (execve(cmdpath, token_array, NULL) == -1)
 					perror("ERROR:");
 				break;
 			}
@@ -89,11 +61,62 @@ int main()
 
 		/*free mem*/
 		free(cmdpath);
-		free(linedup);
-		free(input);
+		free(token_array);
 
 	} while (status > -1);
 
-	free(line);
+	free(inputline);
 	return (0);
 }
+
+int count_tokens(char *inputline, char *delims)
+{
+	int len = 1;
+	char *linedup, *token;
+
+	linedup = strdup(inputline);
+	token = strtok(linedup, delims);
+	while (token != NULL)
+	{
+		token = strtok(NULL, delims);
+		len++;
+	}
+	free(linedup);
+
+	return (len);
+}
+
+char **create_tok_array(char *inputline, char *delims, int toklen)
+{
+		char **token, **array;
+
+		array = malloc(sizeof(void *) * toklen);
+		*array = strtok(inputline, delims);
+
+		token = array;
+		while (*token != NULL)
+		{
+			token++;
+			*token = strtok(NULL, delims);
+		}
+		return (array);
+}
+
+char *get_path(char *cmdname)
+{
+	int cmdlen;
+	char *cmdpath;
+
+	cmdlen = strlen(cmdname);
+
+	cmdpath = malloc(sizeof(char) * (cmdlen + 6));
+	cmdpath = strcpy(cmdpath, "/bin/");
+	cmdpath = strcat(cmdpath, cmdname);
+
+	return(cmdpath);
+}
+
+int run_cmd(char **usr_input)
+{
+}
+
