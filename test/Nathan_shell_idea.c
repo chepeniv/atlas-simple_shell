@@ -16,7 +16,7 @@ extern char **environ;
  * @inputline: The input string.
  * @delims: The delimiter characters.
  *
- * Return: The number of tokens but not as fun as an arcade.
+ * Return: The number of tokens in your coin cup.
  */
 int count_tokens(char *inputline, char *delims)
 {
@@ -40,13 +40,13 @@ int count_tokens(char *inputline, char *delims)
  * @delims: The delimiter characters.
  * @toklen: The number of tokens.
  *
- * Return: An array of tokens.
+ * Return: An array of tokens for arcade fun!
  */
 char **create_tok_array(char *inputline, char *delims, int toklen)
 {
 	char **token, **array;
 
-	array = malloc(sizeof(char *) * (toklen + 1));
+	array = malloc(sizeof(char *) * (toklen + 1)); /* +1 for NULL */
 	if (array == NULL)
 	{
 		perror("malloc");
@@ -60,7 +60,7 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 		token++;
 		*token = strtok(NULL, delims);
 	}
-	*token = NULL; /* Null terminate the array */
+	*token = NULL;
 	return (array);
 }
 
@@ -101,31 +101,30 @@ void print_env(void)
 }
 
 /**
- * run_cmd - Placeholder for future command execution logic.
- * @usr_input: An array of strings representing... The user input. Surprise surprise
+ * run_cmd - Executes a command with arguments.
+ * @cmdpath: The full path to the command.
+ * @args: An array of strings containing arguements. 
  *
  * Return: The exit status of the command.
  */
-int run_cmd(char **usr_input)
+int run_cmd(char *cmdpath, char **args)
 {
 	pid_t pid = fork();
 	if (pid == -1)
 	{
 		perror("fork");
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
 	else if (pid == 0)
-	{
-		char *cmdpath = get_path(usr_input[0]);
-
-		if (execve(cmdpath, usr_input, environ) == -1)
+	{ /*Child process*/
+		if (execve(cmdpath, args, environ) == -1)
 		{
-			perror("execve");
-			exit(EXIT_FAILURE);
+			perror(args[0]);
+			exit(127); 
 		}
 	}
 	else
-	{
+	{ /* Parent process*/
 		wait(NULL);
 	}
 
@@ -173,7 +172,7 @@ int main(void)
 		toklen = count_tokens(inputline, " \t\n");
 		token_array = create_tok_array(inputline, " \t\n", toklen);
 
-		/* Handle "exit" command */
+		/* Handle empty input or "exit" command */
 		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
 		{
 			break;
@@ -184,9 +183,22 @@ int main(void)
 		}
 		else
 		{
-			status = run_cmd(token_array);
-		}
+			char *cmdpath = get_path(token_array[0]);
+			if (stat(cmdpath, &file_stat) == 0)
+			{
+				status = run_cmd(cmdpath, token_array);
+				if (status == -1)
+				{
+					fprintf(stderr, "%s: command not found\n", token_array[0]);
+				}
+			}
+			else
+			{
+				perror(token_array[0]);
+			}
 
+			free(cmdpath);
+		}
 		free(token_array);
 	}
 
