@@ -9,7 +9,7 @@
 int count_tokens(char *input, char *delims);
 char **create_tok_array(char *input, char *delims, int toklen);
 char *get_path(char *cmdname);
-int run_cmd(char **usr_input);
+int run_cmd(char *cmdpath, char **usr_input);
 
 /*simplify program if possible */
 int main()
@@ -21,9 +21,6 @@ int main()
 	char *delims = " \t\n";
 	char *cmdname = NULL;
 	char **token_array = NULL;
-	int *forkstatus;
-	pid_t this_proc, child_proc;
-	struct stat file_stat;
 	char *cmdpath;
 	int cmdlen;
 
@@ -40,24 +37,7 @@ int main()
 		if (!strcmp(cmdname, "exit"))
 			break;
 
-		/*create subproc and exec command given*/
-		if (stat(cmdpath, &file_stat) == 0)
-		{
-			child_proc = fork();
-			if (child_proc < 0)
-			{
-				perror("ERROR:");
-				return (1);
-			}
-			else if (child_proc == 0)
-			{
-				if (execve(cmdpath, token_array, NULL) == -1)
-					perror("ERROR:");
-				break;
-			}
-			else
-				wait(forkstatus);
-		}
+		run_cmd(cmdpath, token_array);
 
 		/*free mem*/
 		free(cmdpath);
@@ -116,7 +96,28 @@ char *get_path(char *cmdname)
 	return(cmdpath);
 }
 
-int run_cmd(char **usr_input)
+int run_cmd(char *cmdpath, char **token_array)
 {
+	struct stat file_stat;
+	pid_t child_proc;
+	int *forkstatus;
+
+	if (stat(cmdpath, &file_stat) == 0)
+	{
+		child_proc = fork();
+		if (child_proc < 0)
+		{
+			perror("ERROR:");
+			return (1);
+		}
+		else if (child_proc == 0)
+		{
+			if (execve(cmdpath, token_array, NULL) == -1)
+				perror("ERROR:");
+			return (-1);
+		}
+		else
+			wait(forkstatus);
+	}
 }
 
