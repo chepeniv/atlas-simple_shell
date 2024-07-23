@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 char *_getenv(const char *name);
@@ -11,7 +12,8 @@ int main(int count, char **args)
 	while (args[j])
 	{
 		item = _getenv(args[j]);
-		printf("%s\n", item);
+		if (item != NULL)
+			printf("%s\n", item);
 		j++;
 	}
 
@@ -31,8 +33,12 @@ char *_getenv(const char *name)
 		item = strtok(item, "=");
 
 		if (!strcmp(name, item))
+		{
+			free(item);
 			return (environ[i]);
+		}
+		free(item);
 		i++;
 	}
-	return ("ITEM NOT FOUND");
+	return (NULL);
 }
