@@ -73,7 +73,7 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 
 char *get_path(char *cmdname)
 {
-	char *path_env = getenv("PATH");
+	char *path_env = _getenv("PATH");
 	char *path = strdup(path_env); /* copy to avoid modifying original*/
 	char *dir = strtok(path, ":"); /*Split PATH into directories*/
 	char *cmdpath;
