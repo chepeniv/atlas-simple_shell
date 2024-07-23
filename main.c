@@ -138,6 +138,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		else
 			wait(&child_proc);
 	}
+	return (127);
 }
 
 /**
