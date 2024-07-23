@@ -11,7 +11,7 @@
 #define MAX_ARGS 128
 #define PATH_PREFIX "/bin/"
 
-extern char **environ;
+char **environ;
 
 /**
  * count_tokens - Counts the number of tokens in a string.
