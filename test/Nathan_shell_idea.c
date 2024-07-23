@@ -107,28 +107,28 @@ void print_env(void)
  *
  * Return: The exit status of the command.
  */
-int run_cmd(char *cmdpath, char **args)
+int run_cmd(char *cmdpath, char **token_array)
 {
-	pid_t pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		return (-1);
-	}
-	else if (pid == 0)
-	{ /*Child process*/
-		if (execve(cmdpath, args, environ) == -1)
-		{
-			perror(args[0]);
-			exit(127); 
-		}
-	}
-	else
-	{ /* Parent process*/
-		wait(NULL);
-	}
+	struct stat file_stat;
+	pid_t child_proc;
 
-	return (0);
+	if (stat(cmdpath, &file_stat) == 0)
+	{
+		child_proc = fork();
+		if (child_proc < 0)
+		{
+			perror("ERROR:");
+			return (1);
+		}
+		else if (child_proc == 0)
+		{
+			if (execve(cmdpath, token_array, NULL) == -1)
+				perror("ERROR:");
+			return (-1);
+		}
+		else
+			wait(&child_proc);
+	}
 }
 
 /**
