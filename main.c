@@ -105,6 +105,8 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	int status;
+	pid_t child_proc;
+	char **args;
 
 	if (stat(cmdpath, &file_stat) == -1)
 	{
@@ -120,7 +122,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		}
 	}
 
-	pid_t child_proc = fork();
+	child_proc = fork();
 	if (child_proc == -1)
 	{
 		perror("fork");
@@ -128,9 +130,14 @@ int run_cmd(char *cmdpath, char **token_array)
 	}
 	else if (child_proc == 0)
 	{
-		char *args[] = {token_array[0], token_array[1], NULL};
+		args = malloc(3 * sizeof(char *));
+		args[0] = token_array[0];
+		args[1] = token_array[1];
+		args[2] = NULL;
+
 		execve(cmdpath, args, NULL);
 		perror("execve");
+		free(args);
 		exit(1);
 	}
 	else
