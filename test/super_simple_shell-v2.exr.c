@@ -35,7 +35,11 @@ int main()
 		cmdpath = get_path(cmdname);
 
 		if (!strcmp(cmdname, "exit"))
+		{
+			free(cmdpath);
+			free(token_array);
 			break;
+		}
 
 		run_cmd(cmdpath, token_array);
 
@@ -100,7 +104,6 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	pid_t child_proc;
-	int *forkstatus;
 
 	if (stat(cmdpath, &file_stat) == 0)
 	{
@@ -117,7 +120,7 @@ int run_cmd(char *cmdpath, char **token_array)
 			return (-1);
 		}
 		else
-			wait(forkstatus);
+			wait(&child_proc);
 	}
 }
 
