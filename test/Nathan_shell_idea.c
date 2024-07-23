@@ -9,6 +9,129 @@
 #define MAX_ARGS 128
 #define PATH_PREFIX "/bin/"
 
+extern char **environ;
+
+/**
+ * count_tokens - Counts the number of tokens in a string.
+ * @inputline: The input string.
+ * @delims: The delimiter characters.
+ *
+ * Return: The number of tokens.
+ */
+int count_tokens(char *inputline, char *delims)
+{
+	int len = 1;
+	char *linedup, *token;
+
+	linedup = strdup(inputline);
+	token = strtok(linedup, delims);
+	while (token != NULL)
+	{
+		token = strtok(NULL, delims);
+		len++;
+	}
+	free(linedup);
+	return (len);
+}
+
+/**
+ * create_tok_array - Creates an array of tokens from a string.
+ * @inputline: The input string.
+ * @delims: The delimiter characters.
+ * @toklen: The number of tokens.
+ *
+ * Return: An array of tokens.
+ */
+char **create_tok_array(char *inputline, char *delims, int toklen)
+{
+	char **token, **array;
+
+	array = malloc(sizeof(char *) * (toklen + 1)); /* +1 for NULL */
+	if (array == NULL)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+
+	token = array;
+	*token = strtok(inputline, delims);
+	while (*token != NULL)
+	{
+		token++;
+		*token = strtok(NULL, delims);
+	}
+	*token = NULL; /* Null terminate the array */
+	return (array);
+}
+
+/**
+ * get_path - Gets the full path of a command.
+ * @cmdname: The command name.
+ *
+ * Return: The full path of the command.
+ */
+char *get_path(char *cmdname)
+{
+	char *cmdpath;
+	int cmdlen = strlen(cmdname);
+
+	cmdpath = malloc(sizeof(char) * (cmdlen + strlen(PATH_PREFIX) + 1));
+	if (cmdpath == NULL)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+
+	strcpy(cmdpath, PATH_PREFIX);
+	strcat(cmdpath, cmdname);
+	return (cmdpath);
+}
+
+/**
+ * print_env - Prints the environment variables.
+ */
+void print_env(void)
+{
+	char **env = environ;
+	while (*env)
+	{
+		printf("%s\n", *env);
+		env++;
+	}
+}
+
+/**
+ * run_cmd - Placeholder for future command execution logic.
+ * @usr_input: An array of strings representing the command and arguments.
+ *
+ * Return: The exit status of the command.
+ */
+int run_cmd(char **usr_input)
+{
+	pid_t pid = fork();
+	if (pid == -1)
+	{
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+	else if (pid == 0)
+	{
+		char *cmdpath = get_path(usr_input[0]);
+
+		if (execve(cmdpath, usr_input, environ) == -1)
+		{
+			perror("execve");
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		wait(NULL);
+	}
+
+	return (0);
+}
+
 /**
  * main - Simple shell implementation
  *
@@ -16,28 +139,26 @@
  */
 int main(void)
 {
-	char *line = NULL, *token;
+	char *inputline = NULL;
 	size_t n = 0;
 	ssize_t read;
-	char *args[MAX_ARGS];
-	struct stat st;
+	char **token_array = NULL;
+	struct stat file_stat;
 	int status;
-	extern char **environ;
+	int toklen;
 
 	printf("--------\n");
-	printf("you have entered our\n\nAtlas\n Simple\n  Shell.\n\n");
-	printf("go away\n");
+	printf("Welcome to Atlas Simple Shell!\n");
 	printf("--------\n");
 
 	while (1)
 	{
-		printf("$$$hell :: ");
-		read = getline(&line, &n, stdin);
+		printf("$$ ");
+		read = getline(&inputline, &n, stdin);
 		if (read == -1)
 		{
 			if (feof(stdin))
 			{
-				printf("\n");
 				break;
 			}
 			else
@@ -47,52 +168,27 @@ int main(void)
 			}
 		}
 
-		line[strcspn(line, "\n")] = 0;
+		inputline[strcspn(inputline, "\n")] = 0;
+		toklen = count_tokens(inputline, " \t\n");
+		token_array = create_tok_array(inputline, " \t\n", toklen);
 
-		/* Tokenize command and arguments */
-		int i = 0;
-		args[i] = strtok(line, " \t\n");
-		while (args[i] != NULL && i < MAX_ARGS - 1)
-		{
-			i++;
-			args[i] = strtok(NULL, " \t\n");
-		}
-		args[i] = NULL;
-
-		/* Exit on "exit" command */
-		if (args[0] && strcmp(args[0], "exit") == 0)
+		/* Handle empty input or "exit" command */
+		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
 		{
 			break;
 		}
-
-		/* Check if command exists */
-		char cmdpath[strlen(PATH_PREFIX) + strlen(args[0]) + 1];
-		sprintf(cmdpath, "%s%s", PATH_PREFIX, args[0]);
-		if (stat(cmdpath, &st) != 0)
+		else if (!strcmp(token_array[0], "env"))
 		{
-			perror(args[0]);
-			continue;
-		}
-
-		/* Fork and execute command */
-		pid_t pid = fork();
-		if (pid == -1)
-		{
-			perror("fork");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid == 0)
-		{ /* Child process */
-			execve(cmdpath, args, environ);
-			perror("execve"); /* execve only returns on error */
-			exit(1);		  /* Exit with an error status */
+			print_env();
 		}
 		else
-		{ /* Parent process */
-			wait(NULL);
+		{
+			status = run_cmd(token_array);
 		}
+
+		free(token_array);
 	}
 
-	free(line);
+	free(inputline);
 	return (EXIT_SUCCESS);
 }
