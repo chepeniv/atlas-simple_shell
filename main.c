@@ -121,6 +121,7 @@ int run_cmd(char *cmdpath, char **token_array)
 	struct stat file_stat;
 	pid_t child_proc;
 	char **args = NULL;
+	int i;
 
 	if (stat(cmdpath, &file_stat) == 0)
 	{
