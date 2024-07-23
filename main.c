@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include "main.h"
 
 int count_tokens(char *input, char *delims);
@@ -72,18 +73,18 @@ int count_tokens(char *inputline, char *delims)
 
 char **create_tok_array(char *inputline, char *delims, int toklen)
 {
-		char **token, **array;
+	char **token, **array;
 
-		array = malloc(sizeof(void *) * toklen);
-		*array = strtok(inputline, delims);
+	array = malloc(sizeof(void *) * toklen);
+	*array = strtok(inputline, delims);
 
-		token = array;
-		while (*token != NULL)
-		{
-			token++;
-			*token = strtok(NULL, delims);
-		}
-		return (array);
+	token = array;
+	while (*token != NULL)
+	{
+		token++;
+		*token = strtok(NULL, delims);
+	}
+	return (array);
 }
 
 char *get_path(char *cmdname)
@@ -97,30 +98,51 @@ char *get_path(char *cmdname)
 	cmdpath = strcpy(cmdpath, "/bin/");
 	cmdpath = strcat(cmdpath, cmdname);
 
-	return(cmdpath);
+	return (cmdpath);
 }
 
 int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
-	pid_t child_proc;
+	int status;
 
-	if (stat(cmdpath, &file_stat) == 0)
+	if (stat(cmdpath, &file_stat) == -1)
 	{
-		child_proc = fork();
-		if (child_proc < 0)
+		if (errno == ENOENT)
 		{
-			perror("ERROR:");
-			return (1);
-		}
-		else if (child_proc == 0)
-		{
-			if (execve(cmdpath, token_array, NULL) == -1)
-				perror("ERROR:");
-			return (-1);
+			fprintf(stderr, "Command not found: %s\n", cmdpath);
+			return 127;
 		}
 		else
-			wait(&child_proc);
+		{
+			perror("stat");
+			return 1;
+		}
 	}
-	return (127);
+
+	pid_t child_proc = fork();
+	if (child_proc == -1)
+	{
+		perror("fork");
+		return 1;
+	}
+	else if (child_proc == 0)
+	{
+		char *args[] = {token_array[0], token_array[1], NULL};
+		execve(cmdpath, args, NULL);
+		perror("execve");
+		exit(1);
+	}
+	else
+	{
+		wait(&status);
+		if (WIFEXITED(status))
+		{
+			return WEXITSTATUS(status);
+		}
+		else
+		{
+			return 1;
+		}
+	}
 }
