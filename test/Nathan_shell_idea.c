@@ -70,21 +70,30 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
  *
  * Return: The full path of the command.
  */
+
 char *get_path(char *cmdname)
 {
+	char *path_env = getenv("PATH");
+	char *path = strdup(path_env); /* copy to avoid modifying original*/
+	char *dir = strtok(path, ":"); /*Split PATH into directories*/
 	char *cmdpath;
-	int cmdlen = strlen(cmdname);
+	struct stat file_stat;
 
-	cmdpath = malloc(sizeof(char) * (cmdlen + strlen(PATH_PREFIX) + 1));
-	if (cmdpath == NULL)
+	while (dir != NULL)
 	{
-		perror("malloc");
-		exit(EXIT_FAILURE);
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
+		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		if (stat(cmdpath, &file_stat) == 0)
+		{
+			free(path);
+			return cmdpath;
+		}
+		free(cmdpath);
+		dir = strtok(NULL, ":");
 	}
 
-	strcpy(cmdpath, PATH_PREFIX);
-	strcat(cmdpath, cmdname);
-	return (cmdpath);
+	free(path);
+	return NULL;
 }
 
 /**
@@ -103,7 +112,7 @@ void print_env(void)
 /**
  * run_cmd - Executes a command with arguments.
  * @cmdpath: The full path to the command.
- * @args: An array of strings containing arguements. 
+ * @args: An array of strings containing arguements.
  *
  * Return: The exit status of the command.
  */

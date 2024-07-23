@@ -3,57 +3,21 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
-#include <errno.h>
-#include "main.h"
+#include <sys/wait.h>
 
-int count_tokens(char *input, char *delims);
-char **create_tok_array(char *input, char *delims, int toklen);
-char *get_path(char *cmdname);
-int run_cmd(char *cmdpath, char **usr_input);
+#define MAX_ARGS 128
+#define PATH_PREFIX "/bin/"
 
-/*simplify program if possible */
-int main()
-{
-	unsigned int toklen;
-	size_t n;
-	ssize_t status;
-	char *inputline = NULL;
-	char *delims = " \t\n";
-	char *cmdname = NULL;
-	char **token_array = NULL;
-	char *cmdpath;
+extern char **environ;
 
-	do
-	{
-		printf("$$ ");
-		status = getline(&inputline, &n, stdin);
-
-		toklen = count_tokens(inputline, delims);
-		token_array = create_tok_array(inputline, delims, toklen);
-		cmdname = *token_array;
-		cmdpath = get_path(cmdname);
-
-		if (!strcmp(cmdname, "exit"))
-		{
-			free(cmdpath);
-			free(token_array);
-			break;
-		}
-
-		run_cmd(cmdpath, token_array);
-
-		/*free mem*/
-		free(cmdpath);
-		free(token_array);
-
-	} while (status > -1);
-
-	free(inputline);
-	return (0);
-}
-
+/**
+ * count_tokens - Counts the number of tokens in a string.
+ * @inputline: The input string.
+ * @delims: The delimiter characters.
+ *
+ * Return: The number of tokens in your coin cup.
+ */
 int count_tokens(char *inputline, char *delims)
 {
 	int len = 1;
@@ -67,99 +31,186 @@ int count_tokens(char *inputline, char *delims)
 		len++;
 	}
 	free(linedup);
-
 	return (len);
 }
 
+/**
+ * create_tok_array - Creates an array of tokens from a string.
+ * @inputline: The input string.
+ * @delims: The delimiter characters.
+ * @toklen: The number of tokens.
+ *
+ * Return: An array of tokens for arcade fun!
+ */
 char **create_tok_array(char *inputline, char *delims, int toklen)
 {
 	char **token, **array;
 
-	array = malloc(sizeof(void *) * toklen);
-	*array = strtok(inputline, delims);
+	array = malloc(sizeof(char *) * (toklen + 1)); /* +1 for NULL */
+	if (array == NULL)
+	{
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
 
 	token = array;
+	*token = strtok(inputline, delims);
 	while (*token != NULL)
 	{
 		token++;
 		*token = strtok(NULL, delims);
 	}
+	*token = NULL;
 	return (array);
 }
 
+/**
+ * get_path - Gets the full path of a command.
+ * @cmdname: The command name.
+ *
+ * Return: The full path of the command.
+ */
+
 char *get_path(char *cmdname)
 {
-	int cmdlen = strlen(cmdname);
-	char *cmdpath = malloc(cmdlen + 6);
-	if (cmdname[0] == '/')
+	char *path_env = getenv("PATH");
+	char *path = strdup(path_env); /* copy to avoid modifying original*/
+	char *dir = strtok(path, ":"); /*Split PATH into directories*/
+	char *cmdpath;
+	struct stat file_stat;
+
+	while (dir != NULL)
 	{
-		strcpy(cmdpath, cmdname);
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
+		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		if (stat(cmdpath, &file_stat) == 0)
+		{
+			free(path);
+			return cmdpath;
+		}
+		free(cmdpath);
+		dir = strtok(NULL, ":");
 	}
-	else
-	{
-		snprintf(cmdpath, cmdlen + 6, "/bin/%s", cmdname);
-	}
-	return cmdpath;
+
+	free(path);
+	return NULL;
 }
 
+/**
+ * print_env - Prints the environment variables.
+ */
+void print_env(void)
+{
+	char **env = environ;
+	while (*env)
+	{
+		printf("%s\n", *env);
+		env++;
+	}
+}
+
+/**
+ * run_cmd - Executes a command with arguments.
+ * @cmdpath: The full path to the command.
+ * @args: An array of strings containing arguements.
+ *
+ * Return: The exit status of the command.
+ */
 int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
-	int status;
 	pid_t child_proc;
-	char **args;
 
-	if (stat(cmdpath, &file_stat) == -1)
+	if (stat(cmdpath, &file_stat) == 0)
 	{
-		if (errno == ENOENT)
+		child_proc = fork();
+		if (child_proc < 0)
 		{
-			fprintf(stderr, "Command not found: %s\n", cmdpath);
-			return 127;
+			perror("ERROR:");
+			return (1);
+		}
+		else if (child_proc == 0)
+		{
+			if (execve(cmdpath, token_array, NULL) == -1)
+				perror("ERROR:");
+			return (-1);
 		}
 		else
-		{
-			perror("stat");
-			return 1;
-		}
+			wait(&child_proc);
 	}
+}
 
-	child_proc = fork();
-	if (child_proc == -1)
-	{
-		perror("fork");
-		return 1;
-	}
-	else if (child_proc == 0)
-	{
-		args = malloc(3 * sizeof(char *));
-		args[0] = token_array[0];
-		args[1] = token_array[1];
-		args[2] = NULL;
+/**
+ * main - Simple shell implementation
+ *
+ * Return: 0 on success, 1 on error
+ */
+int main(void)
+{
+	char *inputline = NULL;
+	size_t n = 0;
+	ssize_t read;
+	char **token_array = NULL;
+	struct stat file_stat;
+	int status;
+	int toklen;
 
-		if (token_array[1] != NULL)
+	printf("--------\n");
+	printf("Welcome to Atlas Simple Shell!\n");
+	printf("Go away\n");
+	printf("--------\n");
+
+	while (1)
+	{
+		printf("$$ ");
+		read = getline(&inputline, &n, stdin);
+		if (read == -1)
 		{
-			if (chdir(token_array[1]) == -1)
-			{ 
-				perror("chdir");
-				exit(1);
+			if (feof(stdin))
+			{
+				break;
+			}
+			else
+			{
+				perror("getline");
+				exit(EXIT_FAILURE);
 			}
 		}
 
-		execve(cmdpath, args, NULL);
-		perror("execve");
-		free(args);
-		exit(1);
-	}
-	else
-	{
-		wait(&status);
-		if (WIFEXITED(status))
+		inputline[strcspn(inputline, "\n")] = 0;
+		toklen = count_tokens(inputline, " \t\n");
+		token_array = create_tok_array(inputline, " \t\n", toklen);
+
+		/* Handle empty input or "exit" command */
+		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
 		{
-			return WEXITSTATUS(status);
+			break;
+		}
+		else if (!strcmp(token_array[0], "env"))
+		{
+			print_env();
 		}
 		else
 		{
-			return 1;
+			char *cmdpath = get_path(token_array[0]);
+			if (stat(cmdpath, &file_stat) == 0)
+			{
+				status = run_cmd(cmdpath, token_array);
+				if (status == -1)
+				{
+					fprintf(stderr, "%s: command not found\n", token_array[0]);
+				}
+			}
+			else
+			{
+				perror(token_array[0]);
+			}
+
+			free(cmdpath);
 		}
+		free(token_array);
 	}
+
+	free(inputline);
+	return (EXIT_SUCCESS);
 }
