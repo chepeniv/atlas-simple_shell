@@ -142,11 +142,9 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 
 			args[0] = cmdpath; /* First argument is the command itself */
-			int i = 1;
-			while (token_array[i - 1] != NULL && i < MAX_ARGS)
+			for (i = 1; token_array[i - 1] != NULL && i < MAX_ARGS; i++)
 			{
 				args[i] = token_array[i - 1];
-				i++;
 			}
 			args[i] = NULL;
 
@@ -166,7 +164,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
 		return 1;
 	}
-	free(args); 
+	free(args);
 	return 0;
 }
 
