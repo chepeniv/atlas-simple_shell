@@ -188,24 +188,13 @@ int main(void)
 	printf("Go away\n");
 	printf("--------\n");
 
-	while (1)
+	while ((read = getline(&inputline, &n, stdin)) != -1)
 	{
-		printf("$$ ");
-		read = getline(&inputline, &n, stdin);
-		if (read == -1)
+		if (read > 0 && inputline[read - 1] == '\n')
 		{
-			if (feof(stdin))
-			{
-				break;
-			}
-			else
-			{
-				perror("getline");
-				exit(EXIT_FAILURE);
-			}
+			inputline[read - 1] = '\0';
 		}
 
-		inputline[strcspn(inputline, "\n")] = 0;
 		toklen = count_tokens(inputline, " \t\n");
 		token_array = create_tok_array(inputline, " \t\n", toklen);
 
@@ -236,6 +225,7 @@ int main(void)
 
 			free(cmdpath);
 		}
+
 		free(token_array);
 	}
 
