@@ -136,6 +136,15 @@ int run_cmd(char *cmdpath, char **token_array)
 		args[1] = token_array[1];
 		args[2] = NULL;
 
+		if (token_array[1] != NULL)
+		{
+			if (chdir(token_array[1]) == -1)
+			{ 
+				perror("chdir");
+				exit(1);
+			}
+		}
+
 		execve(cmdpath, args, NULL);
 		perror("execve");
 		free(args);
