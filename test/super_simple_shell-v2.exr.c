@@ -42,8 +42,6 @@ int main()
 		}
 
 		run_cmd(cmdpath, token_array);
-
-		/*free mem*/
 		free(cmdpath);
 		free(token_array);
 
