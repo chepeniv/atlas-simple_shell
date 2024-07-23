@@ -64,7 +64,7 @@ int main()
 
 		/*construct cmdpath*/
 		cmdlen = strlen(*input);
-		cmdpath = malloc(sizeof(char) * (len + 7));
+		cmdpath = malloc(sizeof(char) * (cmdlen + 6));
 		cmdpath = strcpy(cmdpath, "/bin/");
 		cmdpath = strcat(cmdpath, *input);
 
