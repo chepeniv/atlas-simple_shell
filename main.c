@@ -89,16 +89,17 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 
 char *get_path(char *cmdname)
 {
-	int cmdlen;
-	char *cmdpath;
-
-	cmdlen = strlen(cmdname);
-
-	cmdpath = malloc(sizeof(char) * (cmdlen + 6));
-	cmdpath = strcpy(cmdpath, "/bin/");
-	cmdpath = strcat(cmdpath, cmdname);
-
-	return (cmdpath);
+	int cmdlen = strlen(cmdname);
+	char *cmdpath = malloc(cmdlen + 6);
+	if (cmdname[0] == '/')
+	{
+		strcpy(cmdpath, cmdname);
+	}
+	else
+	{
+		snprintf(cmdpath, cmdlen + 6, "/bin/%s", cmdname);
+	}
+	return cmdpath;
 }
 
 int run_cmd(char *cmdpath, char **token_array)
