@@ -214,30 +214,39 @@ int main(void)
 
 		if (toklen == 1)
 		{
-			continue;
-
-			if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
-				break;
-			else if (!strcmp(token_array[0], "env"))
-				print_env();
-			else
-			{
-				char *cmdpath = get_path(token_array[0]);
-				if (stat(cmdpath, &file_stat) == 0)
-				{
-					status = run_cmd(cmdpath, token_array);
-					if (status == -1)
-						fprintf(stderr, "%s: command not found\n", token_array[0]);
-				}
-				else
-					perror(token_array[0]);
-
-				free(cmdpath);
-			}
-
-			free(token_array);
+			continue; /* Skip to next iteration if empty command */
 		}
 
-		free(inputline);
-		return (EXIT_SUCCESS);
+		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
+		{
+			break;
+		}
+		else if (!strcmp(token_array[0], "env"))
+		{
+			print_env();
+		}
+		else
+		{
+			char *cmdpath = get_path(token_array[0]);
+			if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
+			{
+				status = run_cmd(cmdpath, token_array);
+				if (status == -1)
+				{
+					fprintf(stderr, "%s: command not found\n", token_array[0]);
+				}
+			}
+			else
+			{
+				perror(token_array[0]);
+			}
+
+			free(cmdpath);
+		}
+
+		free(token_array);
 	}
+
+	free(inputline);
+	return (EXIT_SUCCESS);
+}
