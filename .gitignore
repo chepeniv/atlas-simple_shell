@@ -6,6 +6,7 @@
 *.output
 *.test
 *.pdf
+*.error
 .vscode/
 
 
