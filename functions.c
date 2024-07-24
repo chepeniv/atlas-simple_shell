@@ -64,7 +64,7 @@ char *get_path(char *cmdname)
 	struct stat file_stat;
 
 	/* Find PATH from the environment variables */
-	for (char **env = environ; *env != NULL; env++)
+	for (env = environ; *env != NULL; env++)
 	{
 		if (strncmp(*env, "PATH=", 5) == 0)
 		{
