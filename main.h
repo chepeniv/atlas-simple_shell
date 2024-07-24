@@ -1,6 +1,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#define MAX_ARGS 128
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h> 
