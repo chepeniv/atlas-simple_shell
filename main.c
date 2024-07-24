@@ -86,7 +86,7 @@ char *get_path(char *cmdname)
 
 	if (!path_value)
 	{
-		return (NULL); 
+		return (NULL);
 	}
 
 	path = strdup(path_value);
@@ -96,17 +96,19 @@ char *get_path(char *cmdname)
 	{
 		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2);
 		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0';
+
 		if (stat(cmdpath, &file_stat) == 0)
 		{
 			free(path);
-			return (cmdpath); 
+			return (cmdpath);
 		}
 		free(cmdpath);
 		dir = strtok(NULL, ":");
 	}
 
 	free(path);
-	return (NULL); 
+	return (NULL);
 }
 
 /**
@@ -210,28 +212,32 @@ int main(void)
 		toklen = count_tokens(inputline, " \t\n");
 		token_array = create_tok_array(inputline, " \t\n", toklen);
 
-		if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
-			break;
-		else if (!strcmp(token_array[0], "env"))
-			print_env();
-		else
+		if (toklen == 1)
 		{
-			char *cmdpath = get_path(token_array[0]);
-			if (stat(cmdpath, &file_stat) == 0)
-			{
-				status = run_cmd(cmdpath, token_array);
-				if (status == -1)
-					fprintf(stderr, "%s: command not found\n", token_array[0]);
-			}
-			else
-				perror(token_array[0]);
+			continue;
 
-			free(cmdpath);
+			if (token_array[0] == NULL || strcmp(token_array[0], "exit") == 0)
+				break;
+			else if (!strcmp(token_array[0], "env"))
+				print_env();
+			else
+			{
+				char *cmdpath = get_path(token_array[0]);
+				if (stat(cmdpath, &file_stat) == 0)
+				{
+					status = run_cmd(cmdpath, token_array);
+					if (status == -1)
+						fprintf(stderr, "%s: command not found\n", token_array[0]);
+				}
+				else
+					perror(token_array[0]);
+
+				free(cmdpath);
+			}
+
+			free(token_array);
 		}
 
-		free(token_array);
+		free(inputline);
+		return (EXIT_SUCCESS);
 	}
-
-	free(inputline);
-	return (EXIT_SUCCESS);
-}
