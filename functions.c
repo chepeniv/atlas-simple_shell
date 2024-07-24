@@ -115,24 +115,26 @@ int run_cmd(char *cmdpath, char **token_array)
 	char **args = NULL;
 	int i, devNull;
 
+	/* Check if command exists and is executable */
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
-		child_proc = fork();
-		if (child_proc < 0)
+		child_proc = fork(); /* Create a child process */
+		if (child_proc < 0)	 /* Error handling for fork */
 		{
-			perror("ERROR:");
+			perror("fork");
 			return (1);
 		}
-		else if (child_proc == 0)
+		else if (child_proc == 0) /* Child process execution */
 		{
-
-			/* Create args array with cmdpath as first element */
+			/* Allocate memory for arguments array */
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
 				perror("malloc");
 				exit(EXIT_FAILURE);
 			}
+
+			/* Construct arguments array for execve */
 			args[0] = cmdpath;
 			for (i = 1; token_array[i - 1] != NULL && i < MAX_ARGS; i++)
 			{
@@ -140,7 +142,7 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			args[i] = NULL;
 
-			/* Redirect standard input (stdin) to /dev/null */
+			/* Redirect stdin to /dev/null */
 			devNull = open("/dev/null", O_RDONLY);
 			if (devNull == -1)
 			{
@@ -154,23 +156,23 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			close(devNull);
 
+			/* Execute command */
 			if (execve(cmdpath, args, NULL) == -1)
 			{
 				perror("ERROR:");
-				exit(1); /* Exit the child process on error */
+				exit(1); /* Exit child process on error */
 			}
 		}
 		else
 		{
-
-			wait(NULL);
+			wait(NULL); /* Parent waits for child to complete */
 		}
 		free(args);
 	}
 	else
 	{
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
-		return (1);
+		return (1); /* Indicate command not found error */
 	}
-	return (0);
+	return (0); /* Command executed successfully */
 }
