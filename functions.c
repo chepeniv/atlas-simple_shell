@@ -57,38 +57,37 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 char *get_path(char *cmdname)
 {
 	char **env;
-	char *path = NULL;
-	char *dir = NULL;
-	char *cmdpath = NULL;
+	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
 	struct stat file_stat;
-	char *path_value = NULL;
+	int found_path = 0;
 
-	/* Find PATH from the environment variables */
 	for (env = environ; *env != NULL; env++)
 	{
 		if (strncmp(*env, "PATH=", 5) == 0)
 		{
-			path_value = *env + 5;
+			path_value = *env + 5; /* Skip "PATH=" */
 			break;
 		}
 	}
 
-	if (!path_value)
-		return (NULL);
+	if (path_value == NULL)
+	{
+		return NULL; /* PATH not found */
+	}
 
 	path = strdup(path_value);
 	dir = strtok(path, ":");
 
 	while (dir != NULL)
 	{
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2);
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
 		sprintf(cmdpath, "%s/%s", dir, cmdname);
-		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0';
+		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0'; /* Ensure null-termination */
 
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
-			free(path);
-			return (cmdpath);
+			found_path = 1;
+			break;			/* exit from the while loop */
 		}
 
 		free(cmdpath);
@@ -96,7 +95,15 @@ char *get_path(char *cmdname)
 	}
 
 	free(path);
-	return (NULL);
+
+	if (found_path)
+	{
+		return cmdpath; /* Return the full command path if found */
+	}
+	else
+	{
+		return NULL; /* Command not found in PATH */
+	}
 }
 
 /**
@@ -113,18 +120,17 @@ int run_cmd(char *cmdpath, char **token_array)
 	char **args = NULL;
 	int i, devNull;
 
-	/* Check if command exists and is executable */
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
-		child_proc = fork(); /* Create a child process */
-		if (child_proc < 0)	 /* Error handling for fork */
+		child_proc = fork();
+		if (child_proc < 0)
 		{
 			perror("fork");
-			return (1);
+			return 1;
 		}
-		else if (child_proc == 0) /* Child process execution */
+		else if (child_proc == 0)
 		{
-			/* Allocate memory for arguments array */
+
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
@@ -132,7 +138,6 @@ int run_cmd(char *cmdpath, char **token_array)
 				exit(EXIT_FAILURE);
 			}
 
-			/* Construct arguments array for execve */
 			args[0] = cmdpath;
 			for (i = 1; token_array[i - 1] != NULL && i < MAX_ARGS; i++)
 			{
@@ -140,7 +145,7 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			args[i] = NULL;
 
-			/* Redirect stdin to /dev/null */
+			/* Redirect standard input (stdin) to /dev/null */
 			devNull = open("/dev/null", O_RDONLY);
 			if (devNull == -1)
 			{
@@ -154,23 +159,23 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			close(devNull);
 
-			/* Execute command */
+			/*Execute command ONLY after redirection */
 			if (execve(cmdpath, args, NULL) == -1)
 			{
 				perror("ERROR:");
-				exit(1); /* Exit child process on error */
+				exit(1); /* Exit the child process on error */
 			}
 		}
 		else
 		{
-			wait(NULL); /* Parent waits for child to complete */
+			wait(NULL);
 		}
 		free(args);
 	}
 	else
 	{
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
-		return (1); /* Indicate command not found error */
+		return (1);
 	}
-	return (0); /* Command executed successfully */
+	return (0);
 }
