@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include "main.h"
 
 #define MAX_ARGS 128
 #define PATH_PREFIX "/bin/"
