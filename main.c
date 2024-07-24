@@ -138,7 +138,7 @@ int run_cmd(char *cmdpath, char **token_array)
 	char **args = NULL;
 	int i;
 
-	if (stat(cmdpath, &file_stat) == 0)
+	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
 		child_proc = fork();
 		if (child_proc < 0)
@@ -177,10 +177,10 @@ int run_cmd(char *cmdpath, char **token_array)
 	else
 	{
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
-		return 1;
+		return (1);
 	}
 	free(args);
-	return 0;
+	return (0);
 }
 
 /**
