@@ -62,35 +62,34 @@ char *get_path(char *cmdname)
 	char *dir = NULL;
 	char *cmdpath = NULL;
 	struct stat file_stat;
+	char *path_value = NULL;
 
 	/* Find PATH from the environment variables */
 	for (env = environ; *env != NULL; env++)
 	{
 		if (strncmp(*env, "PATH=", 5) == 0)
 		{
-			path_env = *env + 5; /* Skip "PATH=" */
+			path_value = *env + 5;
 			break;
 		}
 	}
 
-	if (path_env == NULL)
-	{
-		return NULL;
-	}
+	if (!path_value)
+		return (NULL);
 
-	path = strdup(path_env);
+	path = strdup(path_value);
 	dir = strtok(path, ":");
 
 	while (dir != NULL)
 	{
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2);
 		sprintf(cmdpath, "%s/%s", dir, cmdname);
-		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0'; /* Ensure null-termination */
+		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0';
 
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
 			free(path);
-			return cmdpath;
+			return (cmdpath);
 		}
 
 		free(cmdpath);
@@ -98,7 +97,7 @@ char *get_path(char *cmdname)
 	}
 
 	free(path);
-	return NULL;
+	return (NULL);
 }
 
 /**
