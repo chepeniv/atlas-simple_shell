@@ -1,4 +1,3 @@
-# atlas-simple_shell
 # $$$hell: A Simple Shell with Attitude
 
 A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.

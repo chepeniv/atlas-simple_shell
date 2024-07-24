@@ -56,6 +56,7 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
  */
 char *get_path(char *cmdname)
 {
+	char **env;
 	char *path_env = NULL;
 	char *path = NULL;
 	char *dir = NULL;
