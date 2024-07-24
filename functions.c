@@ -56,16 +56,48 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
  */
 char *get_path(char *cmdname)
 {
-	int cmdlen;
-	char *cmdpath;
+	char *path_env = NULL;
+	char *path = NULL;
+	char *dir = NULL;
+	char *cmdpath = NULL;
+	struct stat file_stat;
 
-	cmdlen = strlen(cmdname);
+	/* Find PATH from the environment variables */
+	for (char **env = environ; *env != NULL; env++)
+	{
+		if (strncmp(*env, "PATH=", 5) == 0)
+		{
+			path_env = *env + 5; /* Skip "PATH=" */
+			break;
+		}
+	}
 
-	cmdpath = malloc(sizeof(char) * (cmdlen + 6));
-	cmdpath = strcpy(cmdpath, "/bin/");
-	cmdpath = strcat(cmdpath, cmdname);
+	if (path_env == NULL)
+	{
+		return NULL;
+	}
 
-	return (cmdpath);
+	path = strdup(path_env);
+	dir = strtok(path, ":");
+
+	while (dir != NULL)
+	{
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
+		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0'; /* Ensure null-termination */
+
+		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
+		{
+			free(path);
+			return cmdpath;
+		}
+
+		free(cmdpath);
+		dir = strtok(NULL, ":");
+	}
+
+	free(path);
+	return NULL;
 }
 
 /**
