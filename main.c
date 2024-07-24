@@ -73,20 +73,37 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 
 char *get_path(char *cmdname)
 {
-	char *path_env = _getenv("PATH");
-	char *path = strdup(path_env); /* copy to avoid modifying original*/
-	char *dir = strtok(path, ":"); /*Split PATH into directories*/
+	char **env = environ;
+	char *path_value = NULL;
+
+	while (*env)
+	{
+		if (strncmp(*env, "PATH=", 5) == 0)
+		{
+			path_value = *env + 5; /* Skip the "PATH=" prefix */
+			break;
+		}
+		env++;
+	}
+
+	if (!path_value)
+	{
+		return NULL; // PATH not found
+	}
+
+	char *path = strdup(path_value); /* Copy to avoid modifying the original */
+	char *dir = strtok(path, ":");
 	char *cmdpath;
 	struct stat file_stat;
 
 	while (dir != NULL)
 	{
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2);
 		sprintf(cmdpath, "%s/%s", dir, cmdname);
 		if (stat(cmdpath, &file_stat) == 0)
 		{
 			free(path);
-			return cmdpath;
+			return cmdpath; // Found the command
 		}
 		free(cmdpath);
 		dir = strtok(NULL, ":");
