@@ -1,0 +1,48 @@
+.\" Copyright (c) 2024 by Jose N. Olmos (jose.n.olmos@outlook.com) and Nathan Wilson
+.TH ITEM 0  2024-07-24 "Jose N. Olmos, Nathan Wilson" "Atlas Programmer's Manual"
+
+.SH Simple Shell
+atlsh \- a minimal re-implementation of shell
+
+.SH SYNOPSIS
+.nf
+.B $ ash [cmd] [options] [arguments]
+.PP
+.B $ ash 
+.fi
+
+.SH DESCRIPTION
+this is a simple emulation of the classic unix shell. it can run in both interactive and non-interactive mode. 
+
+.SS Subsection
+subsection text
+
+.EX
+an example where code would be written out. followed by (EE) example end
+.EE
+
+.SH RETURN VALUE
+return value
+
+.SH CONFORMING TO
+Betty Style, Nicole Standards
+
+.SH NOTES
+notes
+.B bold text
+.BI "alternate bold "and " then "italic
+.BR alternate bold and then regular
+.IR alternate italic and then regular
+.I just an italic sentence
+
+.SH BUGS
+bugs
+
+.SH EXAMPLES
+examples
+
+.SH SEE ALSO
+.BR sh (1), csh (1), ksh (1), environ (7)
+
+.SH COLOPHON
+colophon
