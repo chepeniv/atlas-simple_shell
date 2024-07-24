@@ -75,12 +75,16 @@ char *get_path(char *cmdname)
 {
 	char **env = environ;
 	char *path_value = NULL;
+	char *path;
+	char *dir;
+	char *cmdpath;
+	struct stat file_stat;
 
 	while (*env)
 	{
 		if (strncmp(*env, "PATH=", 5) == 0)
 		{
-			path_value = *env + 5; /* Skip the "PATH=" prefix */
+			path_value = *env + 5;
 			break;
 		}
 		env++;
@@ -88,14 +92,12 @@ char *get_path(char *cmdname)
 
 	if (!path_value)
 	{
-		return NULL; // PATH not found
+		return (NULL); 
 	}
 
-	char *path = strdup(path_value); /* Copy to avoid modifying the original */
-	char *dir = strtok(path, ":");
-	char *cmdpath;
-	struct stat file_stat;
+	path = strdup(path_value);
 
+	dir = strtok(path, ":");
 	while (dir != NULL)
 	{
 		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2);
@@ -103,14 +105,14 @@ char *get_path(char *cmdname)
 		if (stat(cmdpath, &file_stat) == 0)
 		{
 			free(path);
-			return cmdpath; // Found the command
+			return (cmdpath); 
 		}
 		free(cmdpath);
 		dir = strtok(NULL, ":");
 	}
 
 	free(path);
-	return NULL;
+	return (NULL); 
 }
 
 /**
