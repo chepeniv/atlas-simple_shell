@@ -123,17 +123,15 @@ int run_cmd(char *cmdpath, char **token_array)
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
-		child_proc = fork();
+		child_proc = fork(); /* Create a child process */
 		if (child_proc < 0)
-		{
+		{ /* Error handling for fork */
 			perror("fork");
-			return 1;
+			return (1);
 		}
 		else if (child_proc == 0)
-		{
-
-			/* argument array creation */
-			/* why reconstruct token_array ? - Chepe*/
+		{ /* Child process execution */
+			/* Allocate memory for arguments array */
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
@@ -141,25 +139,25 @@ int run_cmd(char *cmdpath, char **token_array)
 				exit(EXIT_FAILURE);
 			}
 
-			/* Build the args array correctly */
+			/* Construct arguments array for execve */
 			arg_index = 0;
 			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
 			{
 				args[arg_index] = token_array[arg_index];
 				arg_index++;
 			}
-			args[arg_index] = NULL; /* Null-terminate the args array */
+			args[arg_index] = NULL;
 
-			/* why not just pass the token_array instead of args ? - Chepe*/
-			if (execve(cmdpath, args, NULL) == -1)
+			/* Execute command */
+			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
 			{
-				perror("ERROR:");
-				exit(1); /* Exit the child process on error */
+				perror(token_array[0]);
+				exit(1); /* Exit child process on error */
 			}
 		}
 		else
 		{
-			wait(NULL);
+			wait(NULL); /* Parent waits for child to complete */
 		}
 		free(args);
 	}
