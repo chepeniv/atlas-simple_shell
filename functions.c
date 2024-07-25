@@ -81,14 +81,16 @@ char *get_path(char *cmdname)
 	dir = strtok(path, ":");
 	while (dir != NULL)
 	{
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + strlen(PATH_PREFIX) + 3); /* +3 for '/' and '\0' */
 		if (!cmdpath)
 		{
 			free(path);
 			return (NULL);
 		}
 
-		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		sprintf(cmdpath, "%s%s%s", PATH_PREFIX, cmdname, dir); /* Adjusted to use PATH_PREFIX */
+		printf("Checking: %s\n", cmdpath);					   /* Debug print */
+
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
 			free(path);

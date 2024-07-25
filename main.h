@@ -2,7 +2,7 @@
 #define MAIN_H
 
 #define MAX_ARGS 128
-
+#define PATH_PREFIX "/bin/"
 
 extern char **environ;
 
