@@ -61,7 +61,6 @@ char *get_path(char *cmdname)
 	struct stat file_stat;
 	int found_path = 0;
 
-	/* Iterate over environment variables until we find the PATH variable */
 	for (env = environ; *env != NULL; env++)
 	{
 		if (strncmp(*env, "PATH=", 5) == 0)
@@ -73,7 +72,7 @@ char *get_path(char *cmdname)
 
 	if (path_value == NULL)
 	{
-		return NULL;
+		return NULL; /*PATH not found*/
 	}
 
 	path = strdup(path_value);
@@ -87,8 +86,8 @@ char *get_path(char *cmdname)
 
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
-			found_path = 1;
-			break; /* Found the command, exit the loop */
+			found_path = 1; /*Command found*/
+			break;			/* exit from the while loop*/
 		}
 
 		free(cmdpath);
@@ -99,7 +98,7 @@ char *get_path(char *cmdname)
 
 	if (found_path)
 	{
-		return cmdpath; /* Return the full command path if found */
+		return cmdpath; /*Return the full command path if found*/
 	}
 	else
 	{
