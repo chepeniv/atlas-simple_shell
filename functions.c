@@ -58,16 +58,25 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
  */
 char *get_path(char *cmdname)
 {
-	char *path_env = getenv("PATH");
-	char *path, *dir, *cmdpath;
+	char **env;
+	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
 	struct stat file_stat;
 
-	if (!path_env)
-		return NULL; /* PATH not found */
+	for (env = environ; *env != NULL; env++)
+	{
+		if (strncmp(*env, "PATH=", 5) == 0)
+		{
+			path_value = *env + 5; /* Skip "PATH=" */
+			break;
+		}
+	}
 
-	path = strdup(path_env);
+	if (!path_value)
+		return (NULL); /* PATH not found */
+
+	path = strdup(path_value);
 	if (!path)
-		return NULL;
+		return (NULL);
 
 	dir = strtok(path, ":");
 	while (dir != NULL)
@@ -76,14 +85,14 @@ char *get_path(char *cmdname)
 		if (!cmdpath)
 		{
 			free(path);
-			return NULL;
+			return (NULL);
 		}
 
 		sprintf(cmdpath, "%s/%s", dir, cmdname);
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
 			free(path);
-			return cmdpath; /* Return the full command path if found */
+			return (cmdpath); /* Return the full command path if found */
 		}
 
 		free(cmdpath);
@@ -91,7 +100,7 @@ char *get_path(char *cmdname)
 	}
 
 	free(path);
-	return NULL; /* Command not found in PATH */
+	return (NULL); /* Command not found in PATH */
 }
 
 /**
