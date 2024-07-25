@@ -61,7 +61,6 @@ char *get_path(char *cmdname)
 	char **env;
 	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
 	struct stat file_stat;
-	int found_path = 0;
 
 	/* Find the PATH environment variable */
 	for (env = environ; *env != NULL; env++)
