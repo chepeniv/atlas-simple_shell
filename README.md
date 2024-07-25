@@ -2,6 +2,9 @@
 
 A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.
 
+## Function
+![flowchart](./assets/atlas-shell-flowchart.png)
+
 ## Features
 
 * **Command Execution:** Runs external commands entered by the user (e.g., `/bin/ls`, `/usr/bin/whoami`).
