@@ -191,4 +191,5 @@ int run_cmd(char *cmdpath, char **token_array)
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
 		return 1; /* Indicate command not found error */
 	}
+	return (0);
 }
