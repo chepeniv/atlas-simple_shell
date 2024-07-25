@@ -101,9 +101,10 @@ char *get_path(char *cmdname)
 		{
 			sprintf(cmdpath, "%s/%s", dir, cmdname);
 		}
+
 		printf("Checking: %s\n", cmdpath); /* Debug print */
 
-		/*Check if the file exists and is executable */
+		/* Check if the file exists and is executable */
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
 			free(path);
