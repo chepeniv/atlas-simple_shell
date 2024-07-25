@@ -14,6 +14,7 @@ int main(int argc, char **argv)
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
+	int nbytes;
 	char buffer[1024];
 	char **token_array = NULL;
 	char *cmdpath;
@@ -88,7 +89,6 @@ int main(int argc, char **argv)
 				}
 
 				/* Read output from child process */
-				int nbytes;
 				close(pipefd[1]);  /* Close write end of the pipe */
 				
 				while ((nbytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
