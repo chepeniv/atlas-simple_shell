@@ -11,7 +11,6 @@ int main(int argc, char **argv)
 {
 	unsigned int toklen;
 	size_t n;
-	ssize_t read;
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
