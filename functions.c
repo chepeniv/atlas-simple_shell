@@ -94,7 +94,7 @@ char *get_path(char *cmdname)
 
 		/* Construct the full command path */
 		sprintf(cmdpath, "%s/%s", dir, cmdname);
-		printf("Checking: %s\n", cmdpath); // Debug print
+		printf("Checking: %s\n", cmdpath); /* Debug print */
 
 		/*Check if the file exists and is executable */
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
