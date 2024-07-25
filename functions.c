@@ -61,6 +61,7 @@ char *get_path(char *cmdname)
 	char **env;
 	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
 	struct stat file_stat;
+	int found_path = 0;
 
 	/* Find the PATH environment variable */
 	for (env = environ; *env != NULL; env++)
@@ -93,17 +94,7 @@ char *get_path(char *cmdname)
 		}
 
 		/* Construct the full command path */
-		if (dir[strlen(dir) - 1] == '/')
-		{
-			sprintf(cmdpath, "%s%s", dir, cmdname);
-		}
-		else
-		{
-			sprintf(cmdpath, "%s/%s", dir, cmdname);
-		}
-
-		/* Debugging: Print the constructed path */
-		printf("Checking: %s\n", cmdpath);
+		sprintf(cmdpath, "%s/%s", dir, cmdname);
 
 		/* Check if the file exists and is executable */
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
