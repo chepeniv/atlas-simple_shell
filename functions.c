@@ -123,10 +123,11 @@ int run_cmd(char *cmdpath, char **token_array)
 	pid_t child_proc;
 	char **args = NULL;
 	int arg_index = 0;
-	int status; /* Add variable to store child process exit status */
+	int status;
+	int devNull;
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
-	{
+	{						 /* Check if file exists and is executable */
 		child_proc = fork(); /* Create a child process */
 		if (child_proc < 0)
 		{ /* Error handling for fork */
@@ -152,13 +153,31 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			args[arg_index] = NULL;
 
+			/* Redirect standard input (stdin) to /dev/null */
+			/* Only if a path is not provided */
+			if (strchr(token_array[0], '/') == NULL)
+			{
+				devNull = open("/dev/null", O_RDONLY);
+				if (devNull == -1)
+				{
+					perror("open");
+					exit(1);
+				}
+				if (dup2(devNull, STDIN_FILENO) == -1)
+				{
+					perror("dup2");
+					exit(1);
+				}
+				close(devNull);
+			}
+
 			/* Execute command */
 			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
 			{
 				perror(token_array[0]);
 				exit(127); /* Exit child process on error with code 127 */
 			}
-			free(args); /* if execve success this line won't run*/
+			free(args);
 		}
 		else
 		{
@@ -172,5 +191,4 @@ int run_cmd(char *cmdpath, char **token_array)
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
 		return 1; /* Indicate command not found error */
 	}
-	return (0);
 }
