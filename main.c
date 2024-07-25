@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 			printf("--------\n");
 		}
 
-		do
+		while (1)
 		{
 			/* Display prompt and read input line */
 			if (isatty(STDIN_FILENO))
@@ -64,7 +64,6 @@ int main(int argc, char **argv)
 			if (!token_array)
 			{
 				perror("Error: ");
-				free(inputline);
 				continue;
 			}
 
@@ -78,8 +77,8 @@ int main(int argc, char **argv)
 			/* Exit if the 'exit' command is entered */
 			if (strcmp(cmdname, "exit") == 0)
 			{
-				free(inputline);
 				free(token_array);
+				free(inputline);
 				return (0);
 			}
 
@@ -96,7 +95,7 @@ int main(int argc, char **argv)
 			}
 
 			free(token_array);
-		} while (1);
+		}
 	}
 
 	free(inputline);
