@@ -123,6 +123,7 @@ int run_cmd(char *cmdpath, char **token_array)
 	pid_t child_proc;
 	char **args = NULL;
 	int arg_index = 0;
+	int status; /* Add variable to store child process exit status */
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
@@ -152,22 +153,23 @@ int run_cmd(char *cmdpath, char **token_array)
 			args[arg_index] = NULL;
 
 			/* Execute command */
-			execve(cmdpath, args, NULL); /* Execute the command */
-
-			/* execve failed if we reach this point */
-			perror(token_array[0]); /* Handle execution error */
-			exit(127);				/* Exit child process with error code 127 (command not found) */
+			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
+			{
+				perror(token_array[0]);
+				exit(127); /* Exit child process on error with code 127 */
+			}
+			free(args); /* if execve success this line won't run*/
 		}
 		else
 		{
-			wait(NULL); /* Parent waits for child to complete */
+			/* Parent process */
+			wait(&status);										/* Wait for child to complete */
+			return WIFEXITED(status) ? WEXITSTATUS(status) : 1; /* return exit status */
 		}
-		free(args);
 	}
 	else
 	{
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
 		return 1; /* Indicate command not found error */
 	}
-	return 0; /* Command executed successfully */
 }
