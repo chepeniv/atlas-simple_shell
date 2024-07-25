@@ -62,6 +62,7 @@ char *get_path(char *cmdname)
 	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
 	struct stat file_stat;
 
+	/* Find the PATH environment variable */
 	for (env = environ; *env != NULL; env++)
 	{
 		if (strncmp(*env, "PATH=", 5) == 0)
@@ -72,29 +73,34 @@ char *get_path(char *cmdname)
 	}
 
 	if (!path_value)
-		return (NULL); /* PATH not found */
+		return NULL; /* PATH not found */
 
+	/* Duplicate the PATH value to tokenize */
 	path = strdup(path_value);
 	if (!path)
-		return (NULL);
+		return NULL;
 
+	/* Tokenize the PATH variable */
 	dir = strtok(path, ":");
 	while (dir != NULL)
 	{
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + strlen(PATH_PREFIX) + 3); /* +3 for '/' and '\0' */
+		/* Allocate memory for the full command path */
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); // +2 for '/' and '\0'
 		if (!cmdpath)
 		{
 			free(path);
-			return (NULL);
+			return NULL;
 		}
 
-		sprintf(cmdpath, "%s%s%s", PATH_PREFIX, cmdname, dir); /* Adjusted to use PATH_PREFIX */
-		printf("Checking: %s\n", cmdpath);					   /* Debug print */
+		/* Construct the full command path */
+		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		printf("Checking: %s\n", cmdpath); // Debug print
 
+		/*Check if the file exists and is executable */
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
 			free(path);
-			return (cmdpath); /* Return the full command path if found */
+			return cmdpath; /* Return the full command path if found */
 		}
 
 		free(cmdpath);
@@ -102,7 +108,7 @@ char *get_path(char *cmdname)
 	}
 
 	free(path);
-	return (NULL); /* Command not found in PATH */
+	return NULL; /* Command not found in PATH */
 }
 
 /**
