@@ -1,9 +1,23 @@
 # $$$hell: A Simple Shell with Attitude
 
+## Description
+
 A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.
 
-## Function
+## Table of Contents
+
+## Operation
 ![flowchart](./assets/atlas-shell-flowchart.png)
+
+## Installation
+## Usage
+### Examples
+## Bugs
+## Status and Roadmap
+## Documentation and Support
+## Acknowledgments
+## Resources
+## License
 
 ## Features
 
