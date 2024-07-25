@@ -14,23 +14,23 @@ int main(int argc, char **argv)
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
-	int nbytes;
-	char buffer[1024];
 	char **token_array = NULL;
 	char *cmdpath;
 	int status = 0;
-	int pipefd[2]; /* File descriptors for the pipe */
 
 	if (argc > 1)
 	{
 		/* Non-interactive mode: Execute a single command from arguments */
 		cmdname = argv[1];
 		cmdpath = get_path(cmdname);
-		token_array = &argv[1];
-		run_cmd(cmdpath, token_array);
+		if (!cmdpath)
+		{
+			fprintf(stderr, "%s: command not found\n", cmdname);
+			return (1);
+		}
+		status = run_cmd(cmdpath, &argv[1]);
 		free(cmdpath);
-
-		return (0);
+		return (status);
 	}
 	else
 	{
@@ -52,22 +52,33 @@ int main(int argc, char **argv)
 			}
 
 			status = getline(&inputline, &n, stdin);
+			if (status == -1)
+			{
+				free(inputline);
+				break;
+			}
 
 			/* Tokenize input line and get command name */
 			toklen = count_tokens(inputline, delims);
-			token_array = create_tok_array(inputline, " \t\n", toklen);
-
-			if (token_array == NULL)
+			token_array = create_tok_array(inputline, delims, toklen);
+			if (!token_array)
 			{
 				perror("Error: ");
+				free(inputline);
+				continue;
 			}
 
-			cmdname = *token_array;
+			cmdname = token_array[0];
+			if (!cmdname)
+			{
+				free(token_array);
+				continue;
+			}
 
 			/* Exit if the 'exit' command is entered */
-			if (!strncmp(cmdname, "exit", 4))
+			if (strcmp(cmdname, "exit") == 0)
 			{
-				free(inputline); /* Free allocated memory for inputline */
+				free(inputline);
 				free(token_array);
 				return (0);
 			}
@@ -76,27 +87,7 @@ int main(int argc, char **argv)
 			cmdpath = get_path(cmdname);
 			if (cmdpath)
 			{
-				if (pipe(pipefd) == -1)
-				{ /* Create a pipe */
-					perror("pipe");
-					exit(EXIT_FAILURE);
-				}
-
 				status = run_cmd(cmdpath, token_array);
-				if (status == -1)
-				{
-					fprintf(stderr, "%s: command not found\n", token_array[0]);
-				}
-
-				/* Read output from child process */
-				close(pipefd[1]);  /* Close write end of the pipe */
-				
-				while ((nbytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
-				{
-					buffer[nbytes] = '\0';
-					write(STDOUT_FILENO, buffer, nbytes);
-				}
-				close(pipefd[0]); /* Close read end of the pipe */
 				free(cmdpath);
 			}
 			else
@@ -105,7 +96,7 @@ int main(int argc, char **argv)
 			}
 
 			free(token_array);
-		} while (status != -1); /* Continue until an error occurs */
+		} while (1);
 	}
 
 	free(inputline);

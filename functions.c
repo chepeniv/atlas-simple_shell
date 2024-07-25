@@ -34,17 +34,19 @@ int count_tokens(char *inputline, char *delims)
  */
 char **create_tok_array(char *inputline, char *delims, int toklen)
 {
-	char **token, **array;
+	char **array = malloc(sizeof(char *) * (toklen + 1));
+	char *token = strtok(inputline, delims);
+	int i = 0;
 
-	array = malloc(sizeof(void *) * toklen);
-	*array = strtok(inputline, delims);
+	if (!array)
+		return (NULL);
 
-	token = array;
-	while (*token != NULL)
+	while (token != NULL)
 	{
-		token++;
-		*token = strtok(NULL, delims);
+		array[i++] = token;
+		token = strtok(NULL, delims);
 	}
+	array[i] = NULL;
 	return (array);
 }
 
@@ -59,7 +61,6 @@ char *get_path(char *cmdname)
 	char **env;
 	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
 	struct stat file_stat;
-	int found_path = 0;
 
 	for (env = environ; *env != NULL; env++)
 	{
@@ -70,24 +71,28 @@ char *get_path(char *cmdname)
 		}
 	}
 
-	if (path_value == NULL)
-	{
-		return NULL; /*PATH not found*/
-	}
+	if (!path_value)
+		return (NULL); /* PATH not found */
 
 	path = strdup(path_value);
-	dir = strtok(path, ":");
+	if (!path)
+		return (NULL);
 
+	dir = strtok(path, ":");
 	while (dir != NULL)
 	{
 		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
-		sprintf(cmdpath, "%s/%s", dir, cmdname);
-		cmdpath[strlen(dir) + strlen(cmdname) + 1] = '\0'; /* Ensure null-termination */
+		if (!cmdpath)
+		{
+			free(path);
+			return (NULL);
+		}
 
+		sprintf(cmdpath, "%s/%s", dir, cmdname);
 		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 		{
-			found_path = 1; /*Command found*/
-			break;			/* exit from the while loop*/
+			free(path);
+			return (cmdpath); /* Return the full command path if found */
 		}
 
 		free(cmdpath);
@@ -95,15 +100,7 @@ char *get_path(char *cmdname)
 	}
 
 	free(path);
-
-	if (found_path)
-	{
-		return cmdpath; /*Return the full command path if found*/
-	}
-	else
-	{
-		return NULL; /* Command not found in PATH */
-	}
+	return (NULL); /* Command not found in PATH */
 }
 
 /**
@@ -117,8 +114,7 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	pid_t child_proc;
-	char **args = NULL;
-	int arg_index = 0;
+	int status;
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
@@ -129,37 +125,15 @@ int run_cmd(char *cmdpath, char **token_array)
 			return (1);
 		}
 		else if (child_proc == 0)
-		{ /* Child process execution */
-			/* Allocate memory for arguments array */
-			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
-			if (!args)
-			{
-				perror("malloc");
-				exit(EXIT_FAILURE);
-			}
-
-			/* Construct arguments array for execve */
-			arg_index = 0;
-			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
-			{
-				args[arg_index] = token_array[arg_index];
-				arg_index++;
-			}
-			args[arg_index] = NULL;
-
-			/* Execute command */
-			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
-			{
-				perror(token_array[0]);
-				exit(127); /* Exit child process on error with code 127*/
-			}
-
-			/* this line should not run if execve works */
-			free(args);
+		{										   /* Child process execution */
+			execve(cmdpath, token_array, environ); /* Execute the command */
+			perror(token_array[0]);
+			exit(127); /* Exit child process on error with code 127 */
 		}
 		else
 		{
-			wait(NULL); /* Parent waits for child to complete */
+			wait(&status); /* Parent waits for child to complete */
+			return (WIFEXITED(status) ? WEXITSTATUS(status) : 1);
 		}
 	}
 	else
@@ -167,5 +141,4 @@ int run_cmd(char *cmdpath, char **token_array)
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
 		return (1); /* Indicate command not found error */
 	}
-	return (0); /* Command executed successfully */
 }
