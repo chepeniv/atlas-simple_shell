@@ -10,14 +10,14 @@
 int main(int argc, char **argv)
 {
 	unsigned int toklen;
-	size_t n;
-	ssize_t read;
+	size_t n = 0;
+	ssize_t bytes_read; /* Renamed from 'read' */
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
 	char **token_array = NULL;
 	char *cmdpath;
-	int status;
+	int status = 0;
 	int pipefd[2]; /* File descriptors for the pipe */
 
 	if (argc > 1)
@@ -54,7 +54,13 @@ int main(int argc, char **argv)
 
 			/* Tokenize input line and get command name */
 			toklen = count_tokens(inputline, delims);
-			token_array = create_tok_array(inputline, delims, toklen);
+			token_array = create_tok_array(inputline, " \t\n", toklen);
+
+			if (token_array == NULL)
+			{
+				perror("Error: ");
+			}
+
 			cmdname = *token_array;
 
 			/* Exit if the 'exit' command is entered */
@@ -74,6 +80,7 @@ int main(int argc, char **argv)
 					perror("pipe");
 					exit(EXIT_FAILURE);
 				}
+
 				status = run_cmd(cmdpath, token_array);
 				if (status == -1)
 				{
@@ -81,7 +88,7 @@ int main(int argc, char **argv)
 				}
 
 				/* Read output from child process */
-				close(pipefd[1]); /* Close write end of the pipe */
+				close(pipefd[1]);  /* Close write end of the pipe */
 				char buffer[1024];
 				int nbytes;
 				while ((nbytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
@@ -92,6 +99,11 @@ int main(int argc, char **argv)
 				close(pipefd[0]); /* Close read end of the pipe */
 				free(cmdpath);
 			}
+			else
+			{
+				fprintf(stderr, "%s: command not found\n", token_array[0]);
+			}
+
 			free(token_array);
 		} while (status != -1); /* Continue until an error occurs */
 	}
