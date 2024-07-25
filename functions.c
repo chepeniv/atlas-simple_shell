@@ -119,20 +119,20 @@ int run_cmd(char *cmdpath, char **token_array)
 	struct stat file_stat;
 	pid_t child_proc;
 	char **args = NULL;
-	int arg_index = 0, devNull;
+	int i, devNull;
 
-	/* Check if command exists and is executable */
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
-		child_proc = fork(); /* Create a child process */
-		if (child_proc < 0)	 /* Error handling for fork */
+		child_proc = fork();
+		if (child_proc < 0)
 		{
 			perror("fork");
-			return (1);
+			return 1;
 		}
-		else if (child_proc == 0) /* Child process execution */
+		else if (child_proc == 0)
 		{
-			/* Allocate memory for arguments array */
+
+			/* argument array creation */
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
@@ -140,46 +140,24 @@ int run_cmd(char *cmdpath, char **token_array)
 				exit(EXIT_FAILURE);
 			}
 
-			/* Construct arguments array for execve */
-			arg_index = 0;
+			/* Build the args array correctly */
+			int arg_index = 0;
 			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
 			{
 				args[arg_index] = token_array[arg_index];
 				arg_index++;
 			}
-			args[arg_index] = NULL;
+			args[arg_index] = NULL; /* Null-terminate the args array */
 
-			/* Redirect stdin to /dev/null */
-			devNull = open("/dev/null", O_RDONLY);
-			if (devNull == -1)
-			{
-				perror("open");
-				exit(1);
-			}
-			if (dup2(devNull, STDIN_FILENO) == -1)
-			{
-				perror("dup2");
-				exit(1);
-			}
-			close(devNull);
-
-			/* Redirect stdout to stdin */
-			if (dup2(STDOUT_FILENO, STDIN_FILENO) == -1)
-			{
-				perror("dup2");
-				exit(1);
-			}
-
-			/* Execute command */
-			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
+			if (execve(cmdpath, args, NULL) == -1)
 			{
 				perror("ERROR:");
-				exit(1); /* Exit child process on error */
+				exit(1); /* Exit the child process on error */
 			}
 		}
 		else
 		{
-			wait(NULL); /* Parent waits for child to complete */
+			wait(NULL);
 		}
 		free(args);
 	}
