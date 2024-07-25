@@ -85,7 +85,7 @@ char *get_path(char *cmdname)
 	while (dir != NULL)
 	{
 		/* Allocate memory for the full command path */
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); // +2 for '/' and '\0'
+		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
 		if (!cmdpath)
 		{
 			free(path);
