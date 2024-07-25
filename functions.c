@@ -152,14 +152,16 @@ int run_cmd(char *cmdpath, char **token_array)
 			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
 			{
 				perror(token_array[0]);
-				exit(1); /* Exit child process on error */
+				exit(127); /* Exit child process on error with code 127*/
 			}
+
+			/* this line should not run if execve works */
+			free(args);
 		}
 		else
 		{
 			wait(NULL); /* Parent waits for child to complete */
 		}
-		free(args);
 	}
 	else
 	{
