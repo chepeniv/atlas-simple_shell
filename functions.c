@@ -93,7 +93,14 @@ char *get_path(char *cmdname)
 		}
 
 		/* Construct the full command path */
-		sprintf(cmdpath, "%s/%s", dir, cmdname);
+		if (dir[strlen(dir) - 1] == '/')
+		{
+			sprintf(cmdpath, "%s%s", dir, cmdname);
+		}
+		else
+		{
+			sprintf(cmdpath, "%s/%s", dir, cmdname);
+		}
 		printf("Checking: %s\n", cmdpath); /* Debug print */
 
 		/*Check if the file exists and is executable */
