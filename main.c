@@ -11,12 +11,14 @@ int main(int argc, char **argv)
 {
 	unsigned int toklen;
 	size_t n;
+	ssize_t read;
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
 	char **token_array = NULL;
 	char *cmdpath;
 	int status;
+	int pipefd[2]; /* File descriptors for the pipe */
 
 	if (argc > 1)
 	{
@@ -67,9 +69,27 @@ int main(int argc, char **argv)
 			cmdpath = get_path(cmdname);
 			if (cmdpath)
 			{
+				if (pipe(pipefd) == -1)
+				{ /* Create a pipe */
+					perror("pipe");
+					exit(EXIT_FAILURE);
+				}
 				status = run_cmd(cmdpath, token_array);
 				if (status == -1)
+				{
 					fprintf(stderr, "%s: command not found\n", token_array[0]);
+				}
+
+				/* Read output from child process */
+				close(pipefd[1]); /* Close write end of the pipe */
+				char buffer[1024];
+				int nbytes;
+				while ((nbytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
+				{
+					buffer[nbytes] = '\0';
+					write(STDOUT_FILENO, buffer, nbytes);
+				}
+				close(pipefd[0]); /* Close read end of the pipe */
 				free(cmdpath);
 			}
 			free(token_array);
