@@ -11,7 +11,6 @@ int main(int argc, char **argv)
 {
 	unsigned int toklen;
 	size_t n = 0;
-	ssize_t bytes_read; /* Renamed from 'read' */
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
@@ -88,9 +87,10 @@ int main(int argc, char **argv)
 				}
 
 				/* Read output from child process */
-				close(pipefd[1]);  /* Close write end of the pipe */
 				char buffer[1024];
 				int nbytes;
+				close(pipefd[1]);  /* Close write end of the pipe */
+				
 				while ((nbytes = read(pipefd[0], buffer, sizeof(buffer) - 1)) > 0)
 				{
 					buffer[nbytes] = '\0';
