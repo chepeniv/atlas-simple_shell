@@ -119,7 +119,7 @@ int run_cmd(char *cmdpath, char **token_array)
 	struct stat file_stat;
 	pid_t child_proc;
 	char **args = NULL;
-	int i, devNull;
+	int arg_index = 0, devNull;
 
 	/* Check if command exists and is executable */
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
@@ -141,7 +141,7 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 
 			/* Construct arguments array for execve */
-			int arg_index = 0;
+			arg_index = 0;
 			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
 			{
 				args[arg_index] = token_array[arg_index];
