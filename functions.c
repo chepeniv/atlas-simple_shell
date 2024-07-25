@@ -121,17 +121,18 @@ int run_cmd(char *cmdpath, char **token_array)
 	char **args = NULL;
 	int i, devNull;
 
+	/* Check if command exists and is executable */
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
-		child_proc = fork();
-		if (child_proc < 0)
+		child_proc = fork(); /* Create a child process */
+		if (child_proc < 0)	 /* Error handling for fork */
 		{
 			perror("fork");
-			return 1;
+			return (1);
 		}
-		else if (child_proc == 0)
+		else if (child_proc == 0) /* Child process execution */
 		{
-
+			/* Allocate memory for arguments array */
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
@@ -139,14 +140,16 @@ int run_cmd(char *cmdpath, char **token_array)
 				exit(EXIT_FAILURE);
 			}
 
-			args[0] = cmdpath;
-			for (i = 1; token_array[i - 1] != NULL && i < MAX_ARGS; i++)
+			/* Construct arguments array for execve */
+			int arg_index = 0;
+			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
 			{
-				args[i] = token_array[i - 1];
+				args[arg_index] = token_array[arg_index];
+				arg_index++;
 			}
-			args[i] = NULL;
+			args[arg_index] = NULL;
 
-			/* Redirect standard input (stdin) to /dev/null */
+			/* Redirect stdin to /dev/null */
 			devNull = open("/dev/null", O_RDONLY);
 			if (devNull == -1)
 			{
@@ -160,23 +163,30 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			close(devNull);
 
-			/*Execute command ONLY after redirection */
-			if (execve(cmdpath, args, NULL) == -1)
+			/* Redirect stdout to stdin */
+			if (dup2(STDOUT_FILENO, STDIN_FILENO) == -1)
+			{
+				perror("dup2");
+				exit(1);
+			}
+
+			/* Execute command */
+			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
 			{
 				perror("ERROR:");
-				exit(1); /* Exit the child process on error */
+				exit(1); /* Exit child process on error */
 			}
 		}
 		else
 		{
-			wait(NULL);
+			wait(NULL); /* Parent waits for child to complete */
 		}
 		free(args);
 	}
 	else
 	{
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
-		return (1);
+		return (1); /* Indicate command not found error */
 	}
-	return (0);
+	return (0); /* Command executed successfully */
 }
