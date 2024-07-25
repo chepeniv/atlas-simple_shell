@@ -117,26 +117,28 @@ char *get_path(char *cmdname)
  *
  * Return: The exit status of the command.
  */
+
 int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
-	pid_t child_proc;
+	pid_t child_pid;
+	int status;
+	int fd;
 	char **args = NULL;
 	int arg_index = 0;
-	int status;
-	int devNull;
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
-	{						 /* Check if file exists and is executable */
-		child_proc = fork(); /* Create a child process */
-		if (child_proc < 0)
-		{ /* Error handling for fork */
+	{
+		child_pid = fork();
+		if (child_pid == -1)
+		{
 			perror("fork");
 			return 1;
 		}
-		else if (child_proc == 0)
-		{ /* Child process execution */
-			/* Allocate memory for arguments array */
+		else if (child_pid == 0)
+		{ /* Child process */
+
+			/* Create args array to hold command and arguments */
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
@@ -144,7 +146,6 @@ int run_cmd(char *cmdpath, char **token_array)
 				exit(EXIT_FAILURE);
 			}
 
-			/* Construct arguments array for execve */
 			arg_index = 0;
 			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
 			{
@@ -153,31 +154,27 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			args[arg_index] = NULL;
 
-			/* Redirect standard input (stdin) to /dev/null */
-			/* Only if a path is not provided */
-			if (strchr(token_array[0], '/') == NULL)
+			/*Redirect stdin to /dev/null if no arguments are provided*/
+			if (token_array[1] == NULL)
 			{
-				devNull = open("/dev/null", O_RDONLY);
-				if (devNull == -1)
+				fd = open("/dev/null", O_RDONLY);
+				if (fd == -1)
 				{
 					perror("open");
 					exit(1);
 				}
-				if (dup2(devNull, STDIN_FILENO) == -1)
+				if (dup2(fd, STDIN_FILENO) == -1)
 				{
 					perror("dup2");
 					exit(1);
 				}
-				close(devNull);
+				close(fd);
 			}
-
-			/* Execute command */
-			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
+			if (execve(cmdpath, args, NULL) == -1)
 			{
 				perror(token_array[0]);
 				exit(127); /* Exit child process on error with code 127 */
 			}
-			free(args);
 		}
 		else
 		{
