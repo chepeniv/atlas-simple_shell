@@ -133,6 +133,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		{
 
 			/* argument array creation */
+			/* why reconstruct token_array ? - Chepe*/
 			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
 			if (!args)
 			{
@@ -149,6 +150,7 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 			args[arg_index] = NULL; /* Null-terminate the args array */
 
+			/* why not just pass the token_array instead of args ? - Chepe*/
 			if (execve(cmdpath, args, NULL) == -1)
 			{
 				perror("ERROR:");
