@@ -119,7 +119,7 @@ int run_cmd(char *cmdpath, char **token_array)
 	struct stat file_stat;
 	pid_t child_proc;
 	char **args = NULL;
-	int i, devNull;
+	int arg_index = 0;
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
@@ -141,7 +141,7 @@ int run_cmd(char *cmdpath, char **token_array)
 			}
 
 			/* Build the args array correctly */
-			int arg_index = 0;
+			arg_index = 0;
 			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
 			{
 				args[arg_index] = token_array[arg_index];
