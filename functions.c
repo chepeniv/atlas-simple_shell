@@ -121,7 +121,9 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	pid_t child_proc;
-	int status;
+	char **args = NULL;
+	int arg_index = 0;
+	int status; /* Add variable to store child process exit status */
 
 	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
 	{
@@ -132,15 +134,39 @@ int run_cmd(char *cmdpath, char **token_array)
 			return 1;
 		}
 		else if (child_proc == 0)
-		{										   /* Child process execution */
-			execve(cmdpath, token_array, environ); /* Execute the command */
-			perror(token_array[0]);
-			exit(127); /* Exit child process on error with code 127 */
+		{ /* Child process execution */
+			/* Allocate memory for arguments array */
+			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
+			if (!args)
+			{
+				perror("malloc");
+				exit(EXIT_FAILURE);
+			}
+
+			/* Construct arguments array for execve */
+			arg_index = 0;
+			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
+			{
+				args[arg_index] = token_array[arg_index];
+				arg_index++;
+			}
+			args[arg_index] = NULL;
+
+			/* Execute command */
+			if (execve(cmdpath, args, NULL) == -1) /* Execute the command */
+			{
+				perror(token_array[0]);
+				exit(127); /* Exit child process on error with code 127 */
+			}
+
+			/* This line should not run if execve works */
+			free(args);
 		}
 		else
 		{
-			wait(&status); /* Parent waits for child to complete */
-			return WIFEXITED(status) ? WEXITSTATUS(status) : 1;
+			/* Parent process */
+			wait(&status);										/* Wait for child to complete */
+			return WIFEXITED(status) ? WEXITSTATUS(status) : 1; /* return exit status */
 		}
 	}
 	else
@@ -148,4 +174,5 @@ int run_cmd(char *cmdpath, char **token_array)
 		fprintf(stderr, "%s: command not found\n", token_array[0]);
 		return 1; /* Indicate command not found error */
 	}
+	return (0); /* Command executed successfully */
 }
