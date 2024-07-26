@@ -10,24 +10,27 @@
 int main(int argc, char **argv)
 {
 	unsigned int toklen;
-	size_t n;
+	size_t n = 0;
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
 	char **token_array = NULL;
 	char *cmdpath;
-	int status;
+	int status = 0;
 
 	if (argc > 1)
 	{
 		/* Non-interactive mode: Execute a single command from arguments */
 		cmdname = argv[1];
 		cmdpath = get_path(cmdname);
-		token_array = &argv[1];
-		run_cmd(cmdpath, token_array);
+		if (!cmdpath)
+		{
+			fprintf(stderr, "%s: command not found\n", cmdname);
+			return (1);
+		}
+		status = run_cmd(cmdpath, &argv[1]);
 		free(cmdpath);
-
-		return (0);
+		return (status);
 	}
 	else
 	{
@@ -39,43 +42,64 @@ int main(int argc, char **argv)
 			printf("Go away\n");
 			printf("--------\n");
 		}
-
-		do
+		/* Read user input */
+		while (1)
 		{
-			/* Display prompt and read input line */
+			/* Display prompt in interactive mode */
 			if (isatty(STDIN_FILENO))
 			{
 				printf("$$ ");
 			}
 
 			status = getline(&inputline, &n, stdin);
+			if (status == -1)
+			{
+				break; /* Exit on error or EOF */
+			}
+			inputline[strcspn(inputline, "\n")] = 0; // Remove trailing newline
 
-			/* Tokenize input line and get command name */
+			/* Tokenize input */
 			toklen = count_tokens(inputline, delims);
 			token_array = create_tok_array(inputline, delims, toklen);
-			cmdname = *token_array;
 
-			/* Exit if the 'exit' command is entered */
+			if (!token_array || !token_array[0])
+			{
+				free(token_array);
+				continue; /* Skip empty lines or errors */
+			}
+
+			cmdname = token_array[0];
+
+			/* Handle 'exit' command */
 			if (!strncmp(cmdname, "exit", 4))
 			{
-				free(inputline); /* Free allocated memory for inputline */
 				free(token_array);
-				return (0);
+				break;
 			}
-
-			/* Get full path of command and execute it */
-			cmdpath = get_path(cmdname);
-			if (cmdpath)
+			else if (!strncmp(cmdname, "env", 3))
 			{
-				status = run_cmd(cmdpath, token_array);
-				if (status == -1)
+				print_env();
+			}
+			else
+			{
+				cmdpath = get_path(cmdname);
+				if (cmdpath)
+				{
+					status = run_cmd(cmdpath, token_array);
+					if (status == -1)
+						fprintf(stderr, "%s: command not found\n", token_array[0]);
+					free(cmdpath);
+				}
+				else
+				{
 					fprintf(stderr, "%s: command not found\n", token_array[0]);
-				free(cmdpath);
+					status = 1;
+				}
 			}
 			free(token_array);
-		} while (status != -1); /* Continue until an error occurs */
+		}
 	}
 
 	free(inputline);
-	return (0);
+	return (status);
 }
