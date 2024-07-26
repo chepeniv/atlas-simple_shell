@@ -17,6 +17,7 @@ int main(int argc, char **argv)
 	char **token_array = NULL;
 	char *cmdpath;
 	int status = 0;
+	void print_env(void);
 
 	if (argc > 1)
 	{
@@ -56,7 +57,7 @@ int main(int argc, char **argv)
 			{
 				break; /* Exit on error or EOF */
 			}
-			inputline[strcspn(inputline, "\n")] = 0; // Remove trailing newline
+			inputline[strcspn(inputline, "\n")] = 0; /* Remove trailing newline */
 
 			/* Tokenize input */
 			toklen = count_tokens(inputline, delims);
