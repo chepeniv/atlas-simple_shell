@@ -54,7 +54,6 @@ int main(int argc, char **argv)
 			status = getline(&inputline, &n, stdin);
 			if (status == -1)
 			{
-				free(inputline);
 				break;
 			}
 
@@ -78,8 +77,7 @@ int main(int argc, char **argv)
 			if (strcmp(cmdname, "exit") == 0)
 			{
 				free(token_array);
-				free(inputline);
-				return (0);
+				break;
 			}
 
 			/* Get full path of command and execute it */
