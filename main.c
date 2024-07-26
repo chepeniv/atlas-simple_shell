@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 	char **token_array = NULL;
 	char *cmdpath;
 	int status = 0;
-	void print_env(void);
+
 
 	if (argc > 1)
 	{
