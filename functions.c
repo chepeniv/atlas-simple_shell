@@ -191,4 +191,4 @@ int run_cmd(char *cmdpath, char **token_array)
 	return (0);
 }
 /*I think this function is where the problem lies mostly. But it could be a mix of it and get_path.
-Lemme know what you find. - Nathan */
+Lemme know what you find, most likely the redirect is the problem, but it just seems so nifty.. - Nathan */
