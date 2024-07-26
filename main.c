@@ -36,7 +36,7 @@ int main(int argc, char **argv)
 	{
 		/* Interactive mode */
 		if (isatty(STDIN_FILENO))
-		{ // check if it's interactive mode
+		{ /* check if it's interactive mode*/
 			printf("--------\n");
 			printf("Welcome to Atlas Simple Shell!\n");
 			printf("Go away\n");
