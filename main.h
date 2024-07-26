@@ -22,6 +22,5 @@ int count_tokens(char *input, char *delims);
 char **create_tok_array(char *input, char *delims, int toklen);
 char *get_path(char *cmdname);
 int run_cmd(char *cmdpath, char **usr_input);
-void print_env(void);
 
 #endif
