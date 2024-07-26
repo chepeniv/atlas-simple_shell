@@ -36,16 +36,16 @@ int main(int argc, char **argv)
 	{
 		/* Interactive mode */
 		if (isatty(STDIN_FILENO))
-		{
+		{ // check if it's interactive mode
 			printf("--------\n");
 			printf("Welcome to Atlas Simple Shell!\n");
 			printf("Go away\n");
 			printf("--------\n");
 		}
 
-		while (1)
+		do
 		{
-			/* Display prompt and read input line */
+			/* print the prompt only in interactive mode */
 			if (isatty(STDIN_FILENO))
 			{
 				printf("$$ ");
@@ -57,12 +57,18 @@ int main(int argc, char **argv)
 				break;
 			}
 
-			/* Tokenize input line and get command name */
 			toklen = count_tokens(inputline, delims);
 			token_array = create_tok_array(inputline, delims, toklen);
-			if (!token_array)
+
+			if (token_array == NULL)
 			{
 				perror("Error: ");
+				continue;
+			}
+
+			/* Check for empty command */
+			if (toklen == 1)
+			{
 				continue;
 			}
 
@@ -76,26 +82,31 @@ int main(int argc, char **argv)
 			/* Exit if the 'exit' command is entered */
 			if (strcmp(cmdname, "exit") == 0)
 			{
+				free(inputline); /* Free allocated memory for inputline */
 				free(token_array);
-				break;
+				return (0);
 			}
 
-			/* Get full path of command and execute it */
 			cmdpath = get_path(cmdname);
 			if (cmdpath)
 			{
 				status = run_cmd(cmdpath, token_array);
+				if (status == 127)
+				{
+					fprintf(stderr, "%s: command not found\n", token_array[0]);
+				}
 				free(cmdpath);
 			}
 			else
 			{
 				fprintf(stderr, "%s: command not found\n", token_array[0]);
+				status = 1;
 			}
-
 			free(token_array);
-		}
-	}
 
-	free(inputline);
-	return (0);
+		} while (status != -1);
+
+		free(inputline);
+		return (status);
+	}
 }
