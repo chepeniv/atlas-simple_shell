@@ -17,7 +17,6 @@ int main(int argc, char **argv)
 	char **token_array = NULL;
 	char *cmdpath;
 	int status = 0;
-	int print_env;
 
 	if (argc > 1)
 	{
@@ -43,10 +42,10 @@ int main(int argc, char **argv)
 			printf("Go away\n");
 			printf("--------\n");
 		}
-		/* Read user input */
+
 		while (1)
 		{
-			/* Display prompt in interactive mode */
+			/* Display prompt and read input line */
 			if (isatty(STDIN_FILENO))
 			{
 				printf("$$ ");
@@ -55,52 +54,50 @@ int main(int argc, char **argv)
 			status = getline(&inputline, &n, stdin);
 			if (status == -1)
 			{
-				break; /* Exit on error or EOF */
+				free(inputline);
+				break;
 			}
-			inputline[strcspn(inputline, "\n")] = 0; /* Remove trailing newline */
 
-			/* Tokenize input */
+			/* Tokenize input line and get command name */
 			toklen = count_tokens(inputline, delims);
 			token_array = create_tok_array(inputline, delims, toklen);
-
-			if (!token_array || !token_array[0])
+			if (!token_array)
 			{
-				free(token_array);
-				continue; /* Skip empty lines or errors */
+				perror("Error: ");
+				continue;
 			}
 
 			cmdname = token_array[0];
-
-			/* Handle 'exit' command */
-			if (!strncmp(cmdname, "exit", 4))
+			if (!cmdname)
 			{
 				free(token_array);
-				break;
+				continue;
 			}
-			else if (!strncmp(cmdname, "env", 3))
+
+			/* Exit if the 'exit' command is entered */
+			if (strcmp(cmdname, "exit") == 0)
 			{
-				print_env();
+				free(token_array);
+				free(inputline);
+				return (0);
+			}
+
+			/* Get full path of command and execute it */
+			cmdpath = get_path(cmdname);
+			if (cmdpath)
+			{
+				status = run_cmd(cmdpath, token_array);
+				free(cmdpath);
 			}
 			else
 			{
-				cmdpath = get_path(cmdname);
-				if (cmdpath)
-				{
-					status = run_cmd(cmdpath, token_array);
-					if (status == -1)
-						fprintf(stderr, "%s: command not found\n", token_array[0]);
-					free(cmdpath);
-				}
-				else
-				{
-					fprintf(stderr, "%s: command not found\n", token_array[0]);
-					status = 1;
-				}
+				fprintf(stderr, "%s: command not found\n", token_array[0]);
 			}
+
 			free(token_array);
 		}
 	}
 
 	free(inputline);
-	return (status);
+	return (0);
 }
