@@ -21,7 +21,7 @@ A bare-bones Unix shell implementation in C, perfect for learning the ropes of p
 
 # Description
 ## Operation
-![flowchart](./assets/atlas-shell-flowchart.png)
+![flowchart](./assets/atlas-shell-main-v2.png)
 
 ## Installation
 
