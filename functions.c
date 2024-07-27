@@ -1,12 +1,69 @@
-#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
 
-/**
- * count_tokens - Counts the number of tokens in a string.
- * @inputline: The input string.
- * @delims: The delimiter characters.
- *
- * Return: The number of tokens in your coin cup.
- */
+int count_tokens(char *input, char *delims);
+char **create_tok_array(char *input, char *delims, int toklen);
+char *get_path(char *cmdname);
+int run_cmd(char *cmdpath, char **usr_input);
+
+/*simplify program if possible */
+int main(int argc, char **argv, char **env)
+{
+	unsigned int i, toklen;
+	size_t n;
+	ssize_t status;
+	char *inputline = NULL;
+	char *delims = " \t\n";
+	char *cmdname = NULL;
+	char **token_array = NULL;
+	char *cmdpath;
+	int cmdlen;
+
+	if (argc > 1)
+	{
+		cmdname = argv[1];
+		cmdpath = get_path(cmdname);
+		token_array = &argv[1];
+		run_cmd(cmdpath, token_array);
+		free(cmdpath);
+
+		return (0);
+	}
+	else
+	{
+		do
+		{
+			printf("$$ ");
+			status = getline(&inputline, &n, stdin);
+
+			toklen = count_tokens(inputline, delims);
+			token_array = create_tok_array(inputline, delims, toklen);
+			cmdname = *token_array;
+			cmdpath = get_path(cmdname);
+
+			if (!strcmp(cmdname, "exit"))
+			{
+				free(cmdpath);
+				free(token_array);
+				break;
+			}
+
+			run_cmd(cmdpath, token_array);
+			free(cmdpath);
+			free(token_array);
+
+		} while (status > -1);
+
+		free(inputline);
+		return (0);
+	}
+}
+
 int count_tokens(char *inputline, char *delims)
 {
 	int len = 1;
@@ -24,171 +81,57 @@ int count_tokens(char *inputline, char *delims)
 	return (len);
 }
 
-/**
- * create_tok_array - Creates an array of tokens from a string.
- * @inputline: The input string.
- * @delims: The delimiter characters.
- * @toklen: The number of tokens.
- *
- * Return: An array of tokens for arcade fun!
- */
 char **create_tok_array(char *inputline, char *delims, int toklen)
 {
-	char **array = malloc(sizeof(char *) * (toklen + 1));
-	char *token = strtok(inputline, delims);
-	int i = 0;
+		char **token, **array;
 
-	if (!array)
-		return (NULL);
+		array = malloc(sizeof(void *) * toklen);
+		*array = strtok(inputline, delims);
 
-	while (token != NULL)
-	{
-		array[i++] = token;
-		token = strtok(NULL, delims);
-	}
-	array[i] = NULL;
-	return (array);
+		token = array;
+		while (*token != NULL)
+		{
+			token++;
+			*token = strtok(NULL, delims);
+		}
+		return (array);
 }
 
-/**
- * get_path - Gets the full path of a command.
- * @cmdname: The command name.
- *
- * Return: The full path of the command.
- */
 char *get_path(char *cmdname)
 {
-	char **env;
-	char *path_value = NULL, *path = NULL, *dir = NULL, *cmdpath = NULL;
-	struct stat file_stat;
+	int cmdlen;
+	char *cmdpath;
 
-	/* Find the PATH environment variable */
-	for (env = environ; *env != NULL; env++)
-	{
-		if (strncmp(*env, "PATH=", 5) == 0)
-		{
-			path_value = *env + 5; /* Skip "PATH=" */
-			break;
-		}
-	}
+	cmdlen = strlen(cmdname);
 
-	if (!path_value)
-		return NULL; /* PATH not found */
+	cmdpath = malloc(sizeof(char) * (cmdlen + 6));
+	cmdpath = strcpy(cmdpath, "/bin/");
+	cmdpath = strcat(cmdpath, cmdname);
 
-	/* Duplicate the PATH value to tokenize */
-	path = strdup(path_value);
-	if (!path)
-		return NULL;
-
-	/* Tokenize the PATH variable */
-	dir = strtok(path, ":");
-	while (dir != NULL)
-	{
-		/* Allocate memory for the full command path */
-		cmdpath = malloc(strlen(dir) + strlen(cmdname) + 2); /* +2 for '/' and '\0' */
-		if (!cmdpath)
-		{
-			free(path);
-			return NULL;
-		}
-
-		/* Construct the full command path */
-		sprintf(cmdpath, "%s/%s", dir, cmdname);
-
-		/* Check if the file exists and is executable */
-		if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
-		{
-			free(path);
-			return cmdpath; /* Return the full command path if found */
-		}
-
-		free(cmdpath);
-		dir = strtok(NULL, ":");
-	}
-
-	free(path);
-	return NULL; /* Command not found in PATH */
+	return(cmdpath);
 }
-
-/**
- * run_cmd - Executes a command with arguments.
- * @cmdpath: The full path to the command.
- * @args: An array of strings containing arguements.
- *
- * Return: The exit status of the command.
- */
 
 int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
-	pid_t child_pid;
-	int status;
-	int fd;
-	char **args = NULL;
-	int arg_index = 0;
+	pid_t child_proc;
 
-	if (stat(cmdpath, &file_stat) == 0 && (file_stat.st_mode & S_IXUSR))
+	if (stat(cmdpath, &file_stat) == 0)
 	{
-		child_pid = fork();
-		if (child_pid == -1)
+		child_proc = fork();
+		if (child_proc < 0)
 		{
-			perror("fork");
-			return 1;
+			perror("ERROR:");
+			return (1);
 		}
-		else if (child_pid == 0)
-		{ /* Child process */
-
-			/* Create args array to hold command and arguments */
-			args = malloc(sizeof(char *) * (MAX_ARGS + 1));
-			if (!args)
-			{
-				perror("malloc");
-				exit(EXIT_FAILURE);
-			}
-
-			arg_index = 0;
-			while (token_array[arg_index] != NULL && arg_index < MAX_ARGS)
-			{
-				args[arg_index] = token_array[arg_index];
-				arg_index++;
-			}
-			args[arg_index] = NULL;
-
-			/*Redirect stdin to /dev/null if no arguments are provided*/
-			if (token_array[1] == NULL)
-			{
-				fd = open("/dev/null", O_RDONLY);
-				if (fd == -1)
-				{
-					perror("open");
-					exit(1);
-				}
-				if (dup2(fd, STDIN_FILENO) == -1)
-				{
-					perror("dup2");
-					exit(1);
-				}
-				close(fd);
-			}
-			if (execve(cmdpath, args, NULL) == -1)
-			{
-				perror(token_array[0]);
-				exit(127); /* Exit child process on error with code 127 */
-			}
+		else if (child_proc == 0)
+		{
+			if (execve(cmdpath, token_array, NULL) == -1)
+				perror("ERROR:");
+			return (-1);
 		}
 		else
-		{
-			/* Parent process */
-			wait(&status);										/* Wait for child to complete */
-			return WIFEXITED(status) ? WEXITSTATUS(status) : 1; /* return exit status */
-		}
+			wait(&child_proc);
 	}
-	else
-	{
-		fprintf(stderr, "%s: command not found\n", token_array[0]);
-		return 1; /* Indicate command not found error */
-	}
-	return (0);
 }
-/*I think this function is where the problem lies mostly. But it could be a mix of it and get_path.
-Lemme know what you find, most likely the redirect is the problem, but it just seems so nifty.. - Nathan */
+

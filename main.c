@@ -1,40 +1,27 @@
 #include "main.h"
 
-/**
- * main - Entry point of the simple shell program.
- * @argc: Number of command-line arguments.
- * @argv: Array of command-line arguments.
- *
- * Return: 0 on success, 1 on error.
- */
 int main(int argc, char **argv)
 {
 	unsigned int toklen;
-	size_t n = 0;
+	size_t n;
+	ssize_t status;
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
 	char **token_array = NULL;
 	char *cmdpath;
-	int status = 0;
 
-	if (argc > 1)
+	if (argc > 1) /* non-interactive mode */
 	{
-		/* Non-interactive mode: Execute a single command from arguments */
 		cmdname = argv[1];
 		cmdpath = get_path(cmdname);
-		if (!cmdpath)
-		{
-			fprintf(stderr, "%s: command not found\n", cmdname);
-			return (1);
-		}
-		status = run_cmd(cmdpath, &argv[1]);
+		token_array = &argv[1];
+		run_cmd(cmdpath, token_array);
 		free(cmdpath);
-		return (status);
+		return (0);
 	}
 	else
 	{
-		/* Interactive mode */
 		if (isatty(STDIN_FILENO))
 		{
 			printf("--------\n");
@@ -43,48 +30,30 @@ int main(int argc, char **argv)
 			printf("--------\n");
 		}
 
-		while (1)
+		do
 		{
-			/* Display prompt and read input line */
-				/* if a codeblock consist of a single line braces are unecessary*/
-			if (isatty(STDIN_FILENO))
-				printf("$$ ");
-
+			printf("$$ ");
 			status = getline(&inputline, &n, stdin);
-			if (status == -1)
-				break;
 
-			/* Tokenize input line and get command name */
 			toklen = count_tokens(inputline, delims);
 			token_array = create_tok_array(inputline, delims, toklen);
-				/* continue statements are redundant here*/
-			if (!token_array)
-				perror("Error: ");
-
-			cmdname = token_array[0];
-			if (!cmdname)
-				free(token_array);
-
-			/* Exit if the 'exit' command is entered */
-			if (strcmp(cmdname, "exit") == 0)
-				free(token_array);
-
-			/* Get full path of command and execute it */
+			cmdname = *token_array;
 			cmdpath = get_path(cmdname);
-			if (cmdpath)
+
+			if (!strcmp(cmdname, "exit"))
 			{
-				status = run_cmd(cmdpath, token_array);
 				free(cmdpath);
-			}
-			else
-			{
-				fprintf(stderr, "%s: command not found\n", token_array[0]);
+				free(token_array);
+				break;
 			}
 
+			run_cmd(cmdpath, token_array);
+			free(cmdpath);
 			free(token_array);
-		}
-	}
 
-	free(inputline);
-	return (0);
+		} while (status > -1);
+
+		free(inputline);
+		return (0);
+	}
 }
