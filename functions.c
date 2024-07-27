@@ -72,6 +72,11 @@ char *get_path(char *cmdname)
 		cmdpath = strdup(cmdname);
 		return (cmdpath);
 	}
+	else if (!strcmp(cmdname, "env"))
+	{
+		cmdpath = strdup(cmdname);
+		return (cmdpath);
+	}
 	cmdlen = strlen(cmdname);
 	cmdpath = malloc(sizeof(char) * (cmdlen + 6));
 	cmdpath = strcpy(cmdpath, "/bin/");
@@ -79,7 +84,6 @@ char *get_path(char *cmdname)
 
 	return (cmdpath);
 }
-
 
 /**
  * run_cmd - Executes a command with arguments.
@@ -93,7 +97,9 @@ int run_cmd(char *cmdpath, char **token_array)
 	struct stat file_stat;
 	pid_t child_proc;
 
-	if (stat(cmdpath, &file_stat) == 0)
+	if (!strcmp(cmdpath, "env"))
+		_env();
+	else if (stat(cmdpath, &file_stat) == 0)
 	{
 		child_proc = fork();
 		if (child_proc < 0)
@@ -113,3 +119,21 @@ int run_cmd(char *cmdpath, char **token_array)
 	return (0);
 }
 
+/**
+ * _env - get environment
+ *
+ * Return: environ duplicate
+ */
+char **_env(void)
+{
+	int i = 0;
+	char **env;
+
+	env = environ;
+	while (env[i])
+	{
+		printf("%s\n", env[i]);
+		i++;
+	}
+	return (env);
+}
