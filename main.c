@@ -14,10 +14,7 @@ int main(int argc, char **argv)
 	if (argc > 1) /* non-interactive mode */
 	{
 		cmdname = argv[1];
-		if (cmdname[0] == '/')
-			cmdpath = strdup(cmdname);
-		else
-			cmdpath = get_path(cmdname);
+		cmdpath = get_path(cmdname);
 		token_array = &argv[1];
 		run_cmd(cmdpath, token_array);
 		free(cmdpath);
@@ -35,9 +32,12 @@ int main(int argc, char **argv)
 
 		do
 		{
-			printf("$$ ");
-			status = getline(&inputline, &n, stdin);
+			if (isatty(STDIN_FILENO))
+				printf("$$ ");
+			else
+				status = -1;
 
+			getline(&inputline, &n, stdin);
 			toklen = count_tokens(inputline, delims);
 			token_array = create_tok_array(inputline, delims, toklen);
 			cmdname = *token_array;

@@ -43,8 +43,12 @@ char *get_path(char *cmdname)
 	int cmdlen;
 	char *cmdpath;
 
+	if (cmdname[0] == '/')
+	{
+		cmdpath = strdup(cmdname);
+		return (cmdpath);
+	}
 	cmdlen = strlen(cmdname);
-
 	cmdpath = malloc(sizeof(char) * (cmdlen + 6));
 	cmdpath = strcpy(cmdpath, "/bin/");
 	cmdpath = strcat(cmdpath, cmdname);
