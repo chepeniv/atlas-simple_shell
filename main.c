@@ -36,9 +36,10 @@ int main(int argc, char **argv)
 				printf("$$ ");
 
 			linelen = getline(&inputline, &n, stdin);
-			if (linelen > 1)
+			toklen = count_tokens(inputline, delims);
+			if (linelen > 1 && toklen > 0)
 			{
-				toklen = count_tokens(inputline, delims);
+				toklen++;
 				token_array = create_tok_array(inputline, delims, toklen);
 				cmdname = *token_array;
 				cmdpath = get_path(cmdname);

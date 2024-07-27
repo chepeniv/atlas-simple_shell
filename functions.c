@@ -7,11 +7,12 @@ int run_cmd(char *cmdpath, char **usr_input);
 
 int count_tokens(char *inputline, char *delims)
 {
-	int len = 1;
+	int len = 0;
 	char *linedup, *token;
 
 	linedup = strdup(inputline);
 	token = strtok(linedup, delims);
+
 	while (token != NULL)
 	{
 		token = strtok(NULL, delims);
