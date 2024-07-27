@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 				free(token_array);
 			}
 		} while (linelen > -1);
-		free(inputline);
 	}
+	free(inputline);
 	return (0);
 }

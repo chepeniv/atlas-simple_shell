@@ -1,4 +1,6 @@
 *.txt
+*.bash
+*.sh
 *.out
 *.personal
 *.backup
