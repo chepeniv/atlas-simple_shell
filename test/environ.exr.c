@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+/* output environment variables */
 int main()
 {
 	int i = 0;

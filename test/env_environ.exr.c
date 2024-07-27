@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+/* comparing environment variable addresses */
 int main(int count, char **args, char **env)
 {
 	extern char **environ;
