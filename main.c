@@ -9,7 +9,7 @@
  */
 int main(int argc, char **argv)
 {
-	char *delims = " \t\n", *cmdpath, *inputline, **token_array;
+	char *delims = " \t\n", *cmdpath, *inputline = NULL, **token_array;
 	int linelen, toklen;
 	size_t n;
 
@@ -34,6 +34,7 @@ int main(int argc, char **argv)
 				cmdpath = get_path(*token_array);
 				if (!strcmp(*token_array, "exit"))
 				{
+					printf("(˶°ㅁ°)\n"); /* shell with an attitude */
 					free(cmdpath);
 					free(token_array);
 					break;
