@@ -84,7 +84,7 @@ char *get_path(char *cmdname)
 /**
  * run_cmd - Executes a command with arguments.
  * @cmdpath: The full path to the command.
- * @args: An array of strings containing arguements.
+ * @token_array: An array of strings containing arguements.
  *
  * Return: The exit status of the command.
  */
