@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
 	char *delims = " \t\n", *cmdpath, *inputline, **token_array;
-	int status, linelen, toklen;
+	int linelen, toklen;
 	size_t n;
 
 	if (argc > 1) /* non-interactive mode */
@@ -38,12 +38,12 @@ int main(int argc, char **argv)
 					free(token_array);
 					break;
 				}
-				status = run_cmd(cmdpath, token_array);
+				run_cmd(cmdpath, token_array);
 				free(cmdpath);
 				free(token_array);
 			}
 		} while (linelen > -1);
 		free(inputline);
 	}
-	return (status);
+	return (0);
 }
