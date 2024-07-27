@@ -78,12 +78,12 @@ int run_cmd(char *cmdpath, char **token_array)
 		}
 		else
 			wait(&child_proc);
-		return (0);
 	}
-	else
+	return (0);
+	/*else
 	{
 		fprintf(stderr, "%s: not found\n", cmdpath);
 		return (errno);
-	}
+	}*/
 }
 

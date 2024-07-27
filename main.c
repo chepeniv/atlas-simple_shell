@@ -47,9 +47,9 @@ int main(int argc, char **argv)
 				free(cmdpath);
 				free(token_array);
 			}
-		} while (status == 0);
+		} while (linelen > -1);
 
 		free(inputline);
-		return (0);
+		return (status);
 	}
 }
