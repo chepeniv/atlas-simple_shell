@@ -34,7 +34,6 @@ int main(int argc, char **argv)
 				cmdpath = get_path(*token_array);
 				if (!strcmp(*token_array, "exit"))
 				{
-					printf("(˶°ㅁ°)\n"); /* shell with an attitude */
 					free(cmdpath);
 					free(token_array);
 					break;
