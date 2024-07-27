@@ -109,9 +109,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		}
 		else
 			wait(&child_proc);
-		return (0);
 	}
-	else
-		return (2);
+	return (0);
 }
 
