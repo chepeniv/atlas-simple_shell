@@ -23,12 +23,7 @@ int main(int argc, char **argv)
 	else
 	{
 		if (isatty(STDIN_FILENO))
-		{
-			printf("--------\n");
-			printf("Welcome to $$hell!\n");
-			printf("Go away\n");
-			printf("--------\n");
-		}
+			printf("--------\nWelcome to $$hell!\nGo away\n--------\n");
 
 		do
 		{
