@@ -14,7 +14,10 @@ int main(int argc, char **argv)
 	if (argc > 1) /* non-interactive mode */
 	{
 		cmdname = argv[1];
-		cmdpath = get_path(cmdname);
+		if (cmdname[0] == '/')
+			cmdpath = strdup(cmdname);
+		else
+			cmdpath = get_path(cmdname);
 		token_array = &argv[1];
 		run_cmd(cmdpath, token_array);
 		free(cmdpath);
