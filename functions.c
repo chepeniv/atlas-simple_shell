@@ -54,7 +54,7 @@ char *get_path(char *cmdname)
 	cmdpath = strcpy(cmdpath, "/bin/");
 	cmdpath = strcat(cmdpath, cmdname);
 
-	return(cmdpath);
+	return (cmdpath);
 }
 
 int run_cmd(char *cmdpath, char **token_array)
@@ -81,9 +81,10 @@ int run_cmd(char *cmdpath, char **token_array)
 	}
 	return (0);
 	/*else
-	{
-		fprintf(stderr, "%s: not found\n", cmdpath);
-		return (errno);
-	}*/
+	*{
+	*	fprintf(stderr, "%s: not found\n", cmdpath);
+	*	return (errno);
+	*}
+	*/
 }
 
