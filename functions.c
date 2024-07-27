@@ -67,18 +67,23 @@ int run_cmd(char *cmdpath, char **token_array)
 		child_proc = fork();
 		if (child_proc < 0)
 		{
-			perror("ERROR:");
-			return (1);
+			perror("ERROR: failed to fork()\n");
+			return (-1);
 		}
 		else if (child_proc == 0)
 		{
 			if (execve(cmdpath, token_array, NULL) == -1)
-				perror("ERROR:");
+				perror("ERROR: failed to create child proc\n");
 			return (-1);
 		}
 		else
 			wait(&child_proc);
+		return (0);
 	}
-	return (0);
+	else
+	{
+		fprintf(stderr, "%s: not found\n", cmdpath);
+		return (errno);
+	}
 }
 

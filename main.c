@@ -2,9 +2,8 @@
 
 int main(int argc, char **argv)
 {
-	int linelen, toklen;
+	int status, linelen, toklen;
 	size_t n;
-	/* ssize_t status; */
 	char *inputline = NULL;
 	char *delims = " \t\n";
 	char *cmdname = NULL;
@@ -44,11 +43,11 @@ int main(int argc, char **argv)
 					break;
 				}
 
-				run_cmd(cmdpath, token_array);
+				status = run_cmd(cmdpath, token_array);
 				free(cmdpath);
 				free(token_array);
 			}
-		} while (linelen > -1);
+		} while (status == 0);
 
 		free(inputline);
 		return (0);
