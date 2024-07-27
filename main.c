@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 		if (isatty(STDIN_FILENO))
 		{
 			printf("--------\n");
-			printf("Welcome to Atlas Simple Shell!\n");
+			printf("Welcome to $$hell!\n");
 			printf("Go away\n");
 			printf("--------\n");
 		}
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 		do
 		{
 			if (isatty(STDIN_FILENO))
-				printf("$$ ");
+				printf("(ง'̀-'́)ง "); /* shell with an attitude */
 
 			linelen = getline(&inputline, &n, stdin);
 			toklen = count_tokens(inputline, delims);
