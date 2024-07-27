@@ -43,7 +43,7 @@ char *get_path(char *cmdname)
 	int cmdlen;
 	char *cmdpath;
 
-	if (cmdname[0] == '/')
+	if (cmdname[0] == '/' || cmdname[0] == '.')
 	{
 		cmdpath = strdup(cmdname);
 		return (cmdpath);
