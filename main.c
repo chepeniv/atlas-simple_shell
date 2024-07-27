@@ -24,7 +24,6 @@ int main(int argc, char **argv)
 	{
 		if (isatty(STDIN_FILENO))
 			printf("--------\nWelcome to $$hell!\nGo away\n--------\n");
-
 		do
 		{
 			if (isatty(STDIN_FILENO))
@@ -34,8 +33,7 @@ int main(int argc, char **argv)
 			toklen = count_tokens(inputline, delims);
 			if (linelen > 1 && toklen > 0)
 			{
-				toklen++;
-				token_array = create_tok_array(inputline, delims, toklen);
+				token_array = create_tok_array(inputline, delims, ++toklen);
 				cmdname = *token_array;
 				cmdpath = get_path(cmdname);
 
