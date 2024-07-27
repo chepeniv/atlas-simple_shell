@@ -5,6 +5,13 @@ char **create_tok_array(char *input, char *delims, int toklen);
 char *get_path(char *cmdname);
 int run_cmd(char *cmdpath, char **usr_input);
 
+/**
+ * count_tokens - Counts the number of tokens in a string.
+ * @inputline: The input string.
+ * @delims: The delimiter characters.
+ *
+ * Return: The number of tokens in your coin cup.
+ */
 int count_tokens(char *inputline, char *delims)
 {
 	int len = 0;
@@ -23,6 +30,15 @@ int count_tokens(char *inputline, char *delims)
 	return (len);
 }
 
+
+/**
+ * create_tok_array - Creates an array of tokens from a string.
+ * @inputline: The input string.
+ * @delims: The delimiter characters.
+ * @toklen: The number of tokens.
+ *
+ * Return: An array of tokens for arcade fun!
+ */
 char **create_tok_array(char *inputline, char *delims, int toklen)
 {
 		char **token, **array;
@@ -39,6 +55,13 @@ char **create_tok_array(char *inputline, char *delims, int toklen)
 		return (array);
 }
 
+
+/**
+ * get_path - Gets the full path of a command.
+ * @cmdname: The command name.
+ *
+ * Return: The full path of the command.
+ */
 char *get_path(char *cmdname)
 {
 	int cmdlen;
@@ -57,6 +80,14 @@ char *get_path(char *cmdname)
 	return (cmdpath);
 }
 
+
+/**
+ * run_cmd - Executes a command with arguments.
+ * @cmdpath: The full path to the command.
+ * @args: An array of strings containing arguements.
+ *
+ * Return: The exit status of the command.
+ */
 int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;

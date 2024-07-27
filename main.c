@@ -1,5 +1,12 @@
 #include "main.h"
 
+/**
+ * main - Entry point of the simple shell program.
+ * @argc: Number of command-line arguments.
+ * @argv: Array of command-line arguments.
+ *
+ * Return: 0 on success, 1 on error.
+ */
 int main(int argc, char **argv)
 {
 	char *delims = " \t\n", *cmdpath, *inputline, **token_array;
