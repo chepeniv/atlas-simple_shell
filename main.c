@@ -46,39 +46,28 @@ int main(int argc, char **argv)
 		while (1)
 		{
 			/* Display prompt and read input line */
+				/* if a codeblock consist of a single line braces are unecessary*/
 			if (isatty(STDIN_FILENO))
-			{
 				printf("$$ ");
-			}
 
 			status = getline(&inputline, &n, stdin);
 			if (status == -1)
-			{
 				break;
-			}
 
 			/* Tokenize input line and get command name */
 			toklen = count_tokens(inputline, delims);
 			token_array = create_tok_array(inputline, delims, toklen);
+				/* continue statements are redundant here*/
 			if (!token_array)
-			{
 				perror("Error: ");
-				continue;
-			}
 
 			cmdname = token_array[0];
 			if (!cmdname)
-			{
 				free(token_array);
-				continue;
-			}
 
 			/* Exit if the 'exit' command is entered */
 			if (strcmp(cmdname, "exit") == 0)
-			{
 				free(token_array);
-				break;
-			}
 
 			/* Get full path of command and execute it */
 			cmdpath = get_path(cmdname);
