@@ -10,13 +10,13 @@
 int main(int argc, char **argv)
 {
 	char *delims = " \t\n", *cmdpath, *inputline = NULL, **token_array;
-	int linelen, toklen, cmd_status = 0;
+	int linelen, toklen, status = 0;
 	size_t n;
 
 	if (argc > 1)
 	{	/* non-interactive mode (run once, exit) */
 		cmdpath = get_path(argv[1]);
-		cmd_status = run_cmd(cmdpath, &argv[1]);
+		status = run_cmd(cmdpath, &argv[1]);
 		free(cmdpath);
 	}
 	else
@@ -38,12 +38,12 @@ int main(int argc, char **argv)
 					free(token_array);
 					break;
 				}
-				cmd_status = run_cmd(cmdpath, token_array); /* attempt execute command */
+				status = run_cmd(cmdpath, token_array); /* attempt execute command */
 				free(cmdpath);
 				free(token_array);
 			}
 		} while (linelen > -1);
 	}
 	free(inputline);
-	return (cmd_status);
+	return (status);
 }

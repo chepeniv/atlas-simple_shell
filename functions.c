@@ -101,34 +101,29 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	pid_t child_proc;
-	int status;
 
-	status = stat(cmdpath, &file_stat);
 	/* execute _env() for special env command given */
 	if (!strcmp(cmdpath, "env"))
 		_env();
 	/* otherwise ask operating system to run the command */
-	else if ( status == 0) /*executable exist */
+	else if (stat(cmdpath, &file_stat) == 0) /*executable exist */
 	{
 		child_proc = fork(); /*create subprocess*/
 		if (child_proc < 0)
 		{
 			perror("ERROR: failed to fork()\n");
-			return (-1);
+			return (errno);
 		}
 		else if (child_proc == 0)
 		{	/* replace the subprocess with the exec program */
 			if (execve(cmdpath, token_array, NULL) == -1)
 				perror("ERROR: failed to create child proc\n");
-			return (-1);
+			return (errno);
 		}
 		else /* parent process waits for the subprocess to conclude */
 			wait(&child_proc);
 	}
-	else if (status != 0) /* command not found */
-		return (2);
-
-	return (0);
+	return (errno);
 }
 
 /**
