@@ -101,12 +101,14 @@ int run_cmd(char *cmdpath, char **token_array)
 {
 	struct stat file_stat;
 	pid_t child_proc;
+	int status;
 
+	status = stat(cmdpath, &file_stat);
 	/* execute _env() for special env command given */
 	if (!strcmp(cmdpath, "env"))
 		_env();
 	/* otherwise ask operating system to run the command */
-	else if (stat(cmdpath, &file_stat) == 0) /*ensure the executable exist */
+	else if ( status == 0) /*executable exist */
 	{
 		child_proc = fork(); /*create subprocess*/
 		if (child_proc < 0)
@@ -123,7 +125,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		else /* parent process waits for the subprocess to conclude */
 			wait(&child_proc);
 	}
-	else /* command not found */
+	else if (status != 0) /* command not found */
 		return (2);
 
 	return (0);
