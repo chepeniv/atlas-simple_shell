@@ -65,6 +65,7 @@ exiting...
 
 ## Examples
 ## Bugs
+There had better not be any with the amount I pay in rent...
 
 # Status and Roadmap
 abandoned. we wish to leave this behind. 
