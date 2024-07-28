@@ -13,32 +13,32 @@ int main(int argc, char **argv)
 	int linelen, toklen;
 	size_t n;
 
-	if (argc > 1) /* non-interactive mode */
-	{
+	if (argc > 1)
+	{	/* non-interactive mode (run once, exit) */
 		cmdpath = get_path(argv[1]);
 		run_cmd(cmdpath, &argv[1]);
 		free(cmdpath);
 	}
 	else
-	{
-		if (isatty(STDIN_FILENO))
+	{	/* interactive mode */
+		if (isatty(STDIN_FILENO))/* if in user interactive mode */
 			printf("--------\nWelcome to $$hell!\nGo away\n--------\n");
-		do {
+		do { /* loop indefinitely */
 			if (isatty(STDIN_FILENO))
 				printf("(ง'̀-'́)ง "); /* shell with an attitude */
-			linelen = getline(&inputline, &n, stdin);
+			linelen = getline(&inputline, &n, stdin);/* get and measure input */
 			toklen = count_tokens(inputline, delims);
-			if (linelen > 1 && toklen > 0)
-			{
+			if (linelen > 1 && toklen > 0) /* is input valid ? */
+			{	/* construct token array and get command path */
 				token_array = create_tok_array(inputline, delims, ++toklen);
 				cmdpath = get_path(*token_array);
-				if (!strcmp(*token_array, "exit"))
+				if (!strcmp(*token_array, "exit")) /* is the command exit ? */
 				{
 					free(cmdpath);
 					free(token_array);
 					break;
 				}
-				run_cmd(cmdpath, token_array);
+				run_cmd(cmdpath, token_array); /* attempt execute command */
 				free(cmdpath);
 				free(token_array);
 			}
