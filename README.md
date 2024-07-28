@@ -3,7 +3,7 @@
 
 ## Brief
 
-A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.
+Buckle Up, Buttercup! Introducing $$hell, the Shell with an Attitude! 💅 A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.
 
 ## Table of Contents
 1. Description
@@ -25,7 +25,7 @@ A bare-bones Unix shell implementation in C, perfect for learning the ropes of p
 
 ## Installation
 
-1. **Compile:**
+1. Compile: If you can't figure this out, you probably shouldn't be using a shell. But whatever...
 
 ```bash
 gcc -Wall -Werror -Wpedantic -o $$$hell simple_shell.c
@@ -37,7 +37,9 @@ Bash
 Now you'll see the super cool prompt:
 
 $$$hell :: 
-Type your command (with full path!) and hit Enter.
+Interactive: ./$$hell
+Non Interactive: ./$$hell <command> (Don't forget to replace command with something worthy of my attention
+
 
 Example
 $$$hell :: /bin/ls
@@ -45,18 +47,20 @@ $$$hell :: /usr/bin/whoami
 $$$hell :: exit
 exiting...
 ```
-## Features
+## Features that'll make you go "YAS Queen":
 
 * **Command Execution:** Runs external commands entered by the user (e.g., `/bin/ls`, `/usr/bin/whoami`).
+* **Non-Interactive Mode (Because who needs friends right?): Feed me a single command and I'll execute it, no chit chat, just results. 
+* **Interactive Mode (Oh someone's feeling social now huh?): Hang out in my shell and type commands to your heart's content. But don't expect me to be impressed.
+* **Built in sass and command support (for only the ones I want): Every prompt is a reminder you're in a shelll that knows it's worth.
+* **Environmentally conscious: I CAN display your environment variables using the 'env' command. Because even a sassy shell cares about it's surroundings. 
+* **Pathfinder Extraordinaire: I can locate commands like a pro, even if they're hiding.  
 * **Argument Handling:** Supports commands with arguments (e.g., `ls -l /tmp`).
-* **"exit" Command:** Gracefully terminates the shell.
+* **"exit" (stage left) Command:** When you've had enough of me, just type exit and I'll let you go.
 * **Ctrl+D (EOF) Handling:** Exits when you're done playing around.
 * **Error Handling:** Catches those pesky `fork` and `execve` fails, letting you know what's up.
 
 ## Limitations
-
-* **No PATH Search:** You gotta give the full path to commands, no shortcuts!
-* **No Built-ins:** No fancy `cd` or `env` commands here, just the basics.
 * **No Fancy Stuff:** Forget about pipes (`|`), redirection (`>`, `<`), or wildcards (`*`). This shell keeps it simple.
 
 ## Examples
@@ -74,4 +78,4 @@ man ./man_1_simple_shell
 coffee :pray: 
 # Resources
 # License
-do what you want
+do what you want. Disclaimer: I'm not responsible for any eyerolls or spontaneous hair flips caused by my sassiness.
