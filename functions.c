@@ -123,6 +123,9 @@ int run_cmd(char *cmdpath, char **token_array)
 		else /* parent process waits for the subprocess to conclude */
 			wait(&child_proc);
 	}
+	else /* command not found */
+		return (2);
+
 	return (0);
 }
 
