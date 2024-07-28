@@ -10,17 +10,17 @@ ash \- a minimal re-implementation of shell
 .fi
 
 .SH DESCRIPTION
-This is a simple emulation of the classic UNIX shell. It can run in both interactive and non-interactive mode depending on whether or not arguments were passed during initiation. Our shell is primarily designed to handle simple singular commands. Along with these, options and arguments may be given as well.
+This is a simple emulation of the classic UNIX shell. It can run in both interactive and non-interactive modes depending on whether or not arguments were passed during initiation. Our shell is primarily designed to handle simple singular commands. Along with these, options and arguments may be given as well.
 
 .SS Operation
-If no arguments were passed at initiation, then Ash sets its mode into interactive. In this state it displays a prompt in stdout for the user and then it awaits for input coming from stdin. Once input has been received, it is interpreted and executed if a matching command is found along with its options and arguments, and once all subprocess created in response conclude, it will repeat the entire described series of steps again until an `exit` command is detected -- upon which our shell program terminates.
-If a no matching command is found within the PATH variable directories then an error message is output.
+If no arguments were passed at initiation, then Ash sets its mode into interactive. In this state it displays a prompt in stdout for the user and then it awaits for input coming from stdin. Once input has been received, it is interpreted and executed (if a matching command is found) along with its options and arguments, and once all subprocess created in response conclude, it will repeat the entire described series of steps again until an `exit` command is detected -- upon which our shell program terminates safely.
+If a no matching command is found within the /bin/ directory then an error message is output.
 
 .SS Limitations
 Our simple shell (ash) connot handle special characters nor any dynamic movement of the cursor. This also means unfortunately that neither auto-complete nor shell history are implemented. furthermore, most all of the popular advanced features such as chaining, piping, and redirections are not implemented as well.
 
 .SS Environment
-There's limited integration of the environment into our shell. In particular there's no changing pwd from within our shell.
+Environment variables may be accessed if needed but there's no true integration of the environment into our shell's functioning. In particular there's no changing pwd from within our shell.
 
 .SS Sub-processes
 In order to execute commands our shell creates a copy of itself (fork) upon which it has permissions over. It will then replace this sub-shell's resources (execve) with a given command and wait for its termination before regaining control and resuming its own operation.
@@ -42,11 +42,11 @@ The following is an example of ash running in interactive mode
 
 .EX
 	user@this_machine:~/path$ ./ash
-	$$ echo Wello, Horld!
+	(ง'̀-'́)ง echo Wello, Horld!
 	Wello, Horld!
-	$$ pwd
+	(ง'̀-'́)ง pwd
 	~/path
-	$$ exit
+	(ง'̀-'́)ง exit
 	user@this_machine:~/path$ 
 .EE
 
