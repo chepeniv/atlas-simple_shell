@@ -111,6 +111,7 @@ coffee :pray:, `man` pages
 5. <https://en.wikipedia.org/wiki/C_standard_library>
 6. <https://en.cppreference.com/w/c/header>
 7. <https://sourceware.org/glibc/manual/latest/html_mono/libc.html>
+8. <https://www.wikihow.com/Not-Give-Up>
 
 # License
 do what you want. Disclaimer: I'm not responsible for any eyerolls or spontaneous hair flips caused by my sassiness.
