@@ -3,7 +3,7 @@
 
 ## Brief
 
-Buckle Up, Buttercup! Introducing $$hell, the Shell with an Attitude! 💅 A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.
+Buckle Up, Buttercup! Introducing Ash, the Shell with an Attitude! 💅 A bare-bones Unix shell implementation in C, perfect for learning the ropes of process management and command execution.
 
 ## Table of Contents
 1. Description
@@ -49,7 +49,7 @@ Now you'll see the super cool prompt:
 Interactive: `./$$hell`\
 Non Interactive: `./$$hell <command>` (*Don't forget to replace command with something worthy of my attention*)
 
-## Features that'll make you go "YAS Queen":
+## Features that'll make you go "YAS":
 
 * **Command Execution:** Runs external commands entered by the user (e.g., `/bin/ls`, `/usr/bin/whoami`).
 * **Non-Interactive Mode** (Because who needs friends right?): Feed me a single command and I'll execute it, no chit chat, just results. 
@@ -89,7 +89,7 @@ Here it is running in non-interactive mode
 ```
 
 ## Bugs
-There better not be any. I have a reputation to maintain.
+There better not be any. I have a reputation to maintain. But since our implementation is very minimal by comparison to any of the broadly distributed shells, and because our approach may not have been conventional, there may be some unexpected behaviour somewhere amongst the edge cases. it is also possible that standard shell bugs may have been inadvertently duplicated as well. These all remain to be discovered
 
 # Status and Roadmap
 Abandoned. We're moving on to bigger and better things.
