@@ -112,7 +112,7 @@ int run_cmd(char *cmdpath, char **token_array)
 		child_proc = fork();
 		if (child_proc < 0)
 			return (errno);
-		/* replace the subprocess with the exec program */
+		/* replace the subprocess with the program */
 		else if (child_proc == 0)
 		{
 			if (execve(cmdpath, token_array, NULL) == -1)
@@ -126,7 +126,7 @@ int run_cmd(char *cmdpath, char **token_array)
 				return (WEXITSTATUS(child_proc));
 		}
 	}
-	return (errno);
+	return (2);
 }
 
 /**
