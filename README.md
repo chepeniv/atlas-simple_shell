@@ -89,16 +89,17 @@ Here it is running in non-interactive mode
 ```
 
 ## Bugs
-There had better not be any with the amount I pay in rent...
+There better not be any. I have a reputation to maintain.
 
 # Status and Roadmap
-abandoned. we wish to leave this behind. 
+Abandoned. We're moving on to bigger and better things.
 
 # Documentation and Support
-none, but if you want a bit more details, here's this. now, leave us alone.
+Honey, there's none. But if you really need it, try this:
 ``` 
 man ./man_1_simple_shell
 ```
+Now shoo.
 # Acknowledgments
 coffee :pray:, `man` pages
 
