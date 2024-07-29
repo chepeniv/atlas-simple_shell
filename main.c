@@ -10,7 +10,7 @@
 int main(int argc, char **argv)
 {
 	char *delims = " \t\n", *cmdpath, *inputline = NULL, **token_array;
-	int linelen, toklen, status = 0;
+	int linelen = 0, toklen, status = 0;
 	size_t n;
 
 	if (argc > 1)

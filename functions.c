@@ -108,20 +108,23 @@ int run_cmd(char *cmdpath, char **token_array)
 	/* otherwise ask operating system to run the command */
 	else if (stat(cmdpath, &file_stat) == 0) /*executable exist */
 	{
-		child_proc = fork(); /*create subprocess*/
+		/*create subprocess*/
+		child_proc = fork();
 		if (child_proc < 0)
-		{
-			perror("ERROR: failed to fork()\n");
 			return (errno);
-		}
+		/* replace the subprocess with the exec program */
 		else if (child_proc == 0)
-		{	/* replace the subprocess with the exec program */
+		{
 			if (execve(cmdpath, token_array, NULL) == -1)
-				perror("ERROR: failed to create child proc\n");
-			return (errno);
+				return (errno);
 		}
-		else /* parent process waits for the subprocess to conclude */
+		/* parent process waits for the subprocess to conclude */
+		else
+		{
 			wait(&child_proc);
+			if (WIFEXITED(child_proc))
+				return (WEXITSTATUS(child_proc));
+		}
 	}
 	return (errno);
 }
