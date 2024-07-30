@@ -46,7 +46,7 @@ Now you'll see the super cool prompt:
 ```
 (ง'̀-'́)ง 
 ```
-Interactive: `./ash
+Interactive: `./ash`
 Non Interactive: `./ash <command>` (*Don't forget to replace command with something worthy of my attention*)
 
 ## Features that'll make you go "YAS":
