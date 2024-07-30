@@ -21,10 +21,51 @@ Buckle Up, Buttercup! Introducing Ash, the Shell with an Attitude! 💅 A bare-b
 
 # Description
 ## Operation
-
-```
-	$ ash [cmd] [options] [arguments]
-```
+Main Shell Structure (main.c):
+1. Initialization:
+	- Sets up delimiters (spaces, tabs, newlines) to recognize words in commands.
+	- Handles command-line arguments (optional, for running single commands directly).
+2. Interactive Shell Loop:
+	- Displays a sassy prompt "(ง'̀-'́)ง" if you're in interactive mode.
+	- Reads your input (getline).
+	- If there's a valid command, it proceeds:
+		- Counts the number of words (count_tokens).
+		- Breaks the input into separate words (create_tok_array).
+		- If the command is "exit", it ends the loop.
+		- Otherwise, it figures out the full path of the command (get_path).
+		- Finally, it runs the command with its arguments (run_cmd).
+3. Clean Up: Frees memory and exits gracefully.
+Key Functions (main.h):
+- count_tokens(inputline, delims):
+	- Takes your input line and the delimiter characters.
+	- Uses strtok to split the line into words.
+	- Returns the number of words found.
+- create_tok_array(inputline, delims, toklen):
+	- Similar to count_tokens, but it actually stores the words into an array.
+	- Each element of the array is a single word from your input.
+- get_path(cmdname):
+	- Takes the command name you typed (e.g., "ls").
+	- Handles special cases like built-in commands (env) or paths starting with "/" or ".".
+	- Otherwise, it assumes the command is in a standard location like "/bin/" and constructs the full path.
+- run_cmd(cmdpath, token_array):
+	- This is where the action happens!
+	- If the command is "env", it prints the environment variables.
+	- Otherwise, it checks if the command exists (stat).
+		- If so, it creates a child process using fork().
+		- The child process executes the command using execve().
+		- The parent process waits for the child to finish (wait()).
+- _env():
+	- A simple function to print the environment variables when you type env.
+Flow of a Command:
+1. You type a command (e.g., ls -l).
+2. main reads your input.
+3. count_tokens and create_tok_array break it down into words (ls, -l).
+4. get_path finds the full path to ls (probably /bin/ls).
+5. run_cmd executes /bin/ls with the argument -l.
+6. The results are displayed in your terminal.
+7. Back to the sassy prompt!
+Sassiness Overload:
+Don't forget that the printf statements sprinkle in those fabulous comments to make your shell experience extra special.
 
 ![flowchart](./assets/atlas-shell-main-v2.png)
 
