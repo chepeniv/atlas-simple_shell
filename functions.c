@@ -68,15 +68,13 @@ char *get_path(char *cmdname)
 
 	/*
 	 * special cases where command given is either
-	 * an absolute path or a relative path
+	 * an absolute path, a relative path, or the
+	 * special env command
 	 */
-	if (cmdname[0] == '/' || cmdname[0] == '.')
-	{
-		cmdpath = strdup(cmdname);
-		return (cmdpath);
-	}
-	/* special env command given */
-	else if (!strcmp(cmdname, "env"))
+	if
+		(cmdname[0] == '/'
+		|| cmdname[0] == '.'
+		|| !strcmp(cmdname, "env"))
 	{
 		cmdpath = strdup(cmdname);
 		return (cmdpath);
