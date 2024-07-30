@@ -22,6 +22,9 @@ Buckle Up, Buttercup! Introducing Ash, the Shell with an Attitude! 💅 A bare-b
 # Description
 ## Operation
 Main Shell Structure (main.c):
+
+![flowchart](./assets/atlas-shell-main-v2.png)
+
 1. Initialization:
 	- Sets up delimiters (spaces, tabs, newlines) to recognize words in commands.
 	- Handles command-line arguments (optional, for running single commands directly).
@@ -66,8 +69,6 @@ Flow of a Command:
 7. Back to the sassy prompt!
 Sassiness Overload:
 Don't forget that the printf statements sprinkle in those fabulous comments to make your shell experience extra special.
-
-![flowchart](./assets/atlas-shell-main-v2.png)
 
 ## Installation
 
