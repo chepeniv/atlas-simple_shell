@@ -33,12 +33,12 @@ Buckle Up, Buttercup! Introducing Ash, the Shell with an Attitude! 💅 A bare-b
 1. Compile: If you can't figure this out, you probably shouldn't be using a shell. But whatever...
 
 ```bash
-gcc -Wall -Werror -Wpedantic -o $$hell simple_shell.c
+gcc -Wall -Werror -Wpedantic -o $ash simple_shell.c
 ```
 
 2. **Run**
 ```bash
-./$$hell
+./ash
 ```
 
 Now you'll see the super cool prompt:
@@ -46,8 +46,8 @@ Now you'll see the super cool prompt:
 ```
 (ง'̀-'́)ง 
 ```
-Interactive: `./$$hell`\
-Non Interactive: `./$$hell <command>` (*Don't forget to replace command with something worthy of my attention*)
+Interactive: `./ash
+Non Interactive: `./ash <command>` (*Don't forget to replace command with something worthy of my attention*)
 
 ## Features that'll make you go "YAS":
 
